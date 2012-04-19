@@ -1,0 +1,190 @@
+<?php 
+define("ACTORTYPE", 1);
+define("CASESTATUS", 2);
+define("REGION", 3);
+define("ETHNICITY", 4);
+define("INTERNATIONALLAW", 5);
+define("VIOLATIONTYPE", 6);
+define("INTERVENTION", 7);
+define("AFFILIATION", 9);
+
+
+
+function debaser2_views_query_alter(&$view, &$query) {
+	//echo $view->name."<br>";
+	if ($view->name == 'case_display') {
+		//dprint_r($query);
+		
+		
+	}
+}
+
+function debaser2_perm(){
+	return array('access stats content');
+}
+/*
+ * 
+ 	//dprint_r($view->name);
+	if ($view->name == 'og_members_custom') {
+		dprint_r($view->name);
+  	//$group_id = get_user_group();
+  	//dprint_r($group_id);
+  	$query->where[0]['clauses'][3] = 'og_uid.nid=4';
+  	//dprint_r("hello");
+	}
+  
+}
+*/
+function get_user_group(){
+	global $user;
+	$usernode = user_load(array('uid' => $user->uid));
+	//dprint_r($usernode);
+	if (isset($usernode->og_groups)){
+		foreach ($usernode->og_groups as $variable) {
+			return $variable['nid'];
+		}
+	}
+}
+
+function debaser2_menu(){
+	$items['stats'] = array(
+		'title' => 'Statistics',
+		'access arguments' => array('access content'),
+		'page callback' => 'get_statistics_display',
+		'type' => MENU_NORMAL_ITEM,
+		);
+
+	$items['stats/individual_statistics'] = array(
+		'title'=>'Single Value Statistics', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access stats content'), 
+		'type'=>MENU_LOCAL_TASK,
+		'file'=>'/include/statistics_single.admin.inc',
+		'weight'=> 0,
+		);
+	$items['stats/correlative_statistics'] = array(
+		'title'=>'Correlative Statistics', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access stats content'), 
+		'type'=>MENU_LOCAL_TASK,
+		'file'=>'include/correlative_statistics.admin.inc',
+		'weight'=>1,
+		);
+	$items['stats/tag_cloud'] = array(
+		'title'=>'Violation Tags', 
+		'page callback'=>'get_tag_cloud', 
+		'access arguments'=>array('access stats content'), 
+		'type'=>MENU_LOCAL_TASK,
+		'file'=>'include/tag_cloud.admin.inc',
+		'weight'=>2,
+		);
+	
+		
+	$items['correlative_statistics_3'] = array(
+		'title'=>'Correlative Statistics by case', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access stats content'), 
+		'type'=>MENU_CALLBACK,
+		'file'=>'include/statistics_multiple.admin.inc',
+		);
+	
+	return $items;
+}
+
+/*************************** TAXONOMY MANIPULATION FUNCTIONS *********************************************/
+
+function load_taxonomy_term($taxonomy, $vid){
+	foreach ($taxonomy as $term) {
+		if ($term->vid==$vid) return $term;
+	}
+	
+}
+function function_name() {
+	;
+}
+
+function get_term_name($term_id){
+	$tax = taxonomy_get_term($term_id);
+	return $tax->name;
+}
+
+function get_parent_id($parent){
+	foreach ($parent as $key => $variable) {
+		return $key;
+	}
+}
+
+/*********************************************************************************************************/
+
+
+/*************************** VIEWS MANIPULATION FUNCTIONS ************************************************/
+
+/**
+ * get the results of a views execution using the views 2 API
+ * @param object $view_name
+ * @param object $arguments [optional]
+ * @return views result
+ */
+function get_views_result($view_name, $arguments=0) {
+	$view = views_get_view($view_name);
+	$view->set_items_per_page(0);
+	if($arguments)$view->set_arguments($arguments);
+	$view->execute();
+	return $view->result;
+}
+
+function get_display_result($view_name, $arguments=0){
+	$view = views_get_view($view_name);
+	if($arguments)$view->set_arguments($arguments);
+	$view->set_display('attachment_1');
+	$view->execute();
+	return $view->result;
+	
+}
+
+/**************************** FORM BUILDING FUNCTIONS ****************************************************/
+
+
+
+function select_region_widget(){
+	$vocab = taxonomy_get_tree(3);
+	$region_names = array();
+	$region_names[0] = t("Select Region");
+	$i=0;
+	foreach ($vocab as $term) {
+		if (!$term->depth) {
+			$region_names[$term->tid] = $term->name;
+		};
+	}
+	$location = array(
+		'#title'=>'Location',
+		'#type'=>'select',
+		'#description'=>t('Select Region you want to graph, or leave blank to graph by top level regions'),
+		'#enabled'=>FALSE,
+		'#options'=>$region_names,
+		
+	);
+	return $location;
+}
+
+
+function debaser2_user ( $op ){
+
+    if ( $op == "login" ){
+    	drupal_goto( "http://89.101.165.98");
+    	//drupal_goto( "http://www.debaser2");
+    	
+        //drupal_goto( "https://debaser.koumbit.net:444" );
+    }
+}
+
+
+
+/*********************************************** HELPER FUNCTIONS ********************************************/
+
+//function to empty an array of all but the selected value
+function truncate_array($base_array, $sel_key){
+	foreach ($base_array as $key=>$value){
+		if($key==$sel_key)return array($key=>$value);
+	}
+}

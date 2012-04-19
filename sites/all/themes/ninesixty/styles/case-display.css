@@ -1,0 +1,111 @@
+.left-case-details{
+	min-height:100px;
+	/*background-color:#ff9999;*/
+}
+.right-case-details{
+	min-height:100px;
+	/*background-color:#99ff99;*/
+	
+}
+
+.case-details-created{
+	min-height:20px;
+	/*background-color:yellow;*/
+	margin:0;
+}
+
+/*
+ * case description containers
+ */
+
+.case-details-label{
+	margin-top:8px;
+	
+	min-height:25px !important;
+	font-weight:bold;
+	color:black;
+}
+
+.left-case-field-wrapper{
+	border-bottom:1px solid #e6e6e6;
+}
+
+.case-details-text{
+	margin-top:8px;
+	min-height:25px !important;
+	min-width: 220px;
+	
+	/*background-color:red;*/
+}
+
+/*
+ * case details textarea labels
+ */
+.case-textarea-label{
+	font-weight:bold;
+	margin-bottom: 8px;
+	margin-top:8px;
+}
+
+.resources{
+	margin-top:17px;
+}
+
+/*
+ * case details textareas
+ */
+.case-textarea-large-content {
+	padding:5px;
+	height:300px;
+	overflow:auto;
+	border: 1px solid #bbbbbb;
+}
+
+.case-textarea-small-content{
+	padding:5px;
+	height:150px;
+	overflow:auto;
+	border: 1px solid #bbbbbb;
+}
+/*
+ * container for edit button and icons
+ */
+.case-details-footer{
+	/*background-color:#9999ff;*/
+	
+	margin-left:0px;
+}
+/*
+ * spacer foir edit button
+ */
+.edit-button-spacer{
+	/*background-color:yellow;*/
+	min-height:20px;
+}
+.case-button-holder{
+	padding-left:430px;
+}
+/**
+ * edit button
+ */
+.edit-button{
+	
+}
+
+.edit-button a{
+	text-decoration:none;
+}
+
+.case-name{
+	text-align:right;
+	margin-top:8px;
+	border:0px none; 
+	
+	
+	
+	height:27px
+}
+
+.case-name h6{
+	margin-right: 8px;
+}

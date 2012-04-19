@@ -1,0 +1,1163 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Davi Tapajos
+Creation Date : 14/11/2011
+Description   : Implements tests to ensure that queries related to actors, will be correct.
+site.
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class DebaserReportsActorsTestCase extends DrupalWebTestCase{
+
+  /**
+   *
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Reports - Actors'),
+      'description' => t('Test the actor statistics'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports'
+    );
+
+    $path = drupal_get_path( 'module', 'debaser2_reports' );
+    include_once( $path . '/helper/debaser2_reports.report.inc' );
+    include_once( $path . '/helper/debaser2_reports_func_matrix.report.inc' );
+    include_once( $path . '/queries/debaser2_reports_actors_queries.inc' );
+    include_once( $path . '/queries/debaser2_reports_victims_queries.inc' );
+  }
+
+  /**
+   *
+   */
+  public function test_tables_creation(){
+    $tables = $this->_get_tables_list();
+
+    foreach($tables as $table_name => $fields) {
+      $sql = 'SELECT ';
+      $i = 1;
+      $count = count($fields);
+      foreach($fields as $field) {
+        $sql .= $field;
+        $sql .= $count == $i ? ' ' : ', ';
+        $i++;
+      }
+      $sql .= ' FROM {%s}';
+      $result = db_query($sql, $table_name);
+      $this->assertTrue($result, t("All ok with table !table", array("!table" => $table_name) ) );
+    }
+
+  }
+
+
+/********************************************************************************************
+
+                        TEST ACTOR TYPES
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  public function test_actor_by_type_without_result() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(1, 0, 'query');
+    $results = $query_function(9999);
+     
+    if (empty($results)) {
+      $results = FALSE;
+    }
+    $this->assertEqual($results, FALSE, t('There isn\'t results to group 9999 | result: !count | expected: !expected', array('!expected' => FALSE, '!count' => $results) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_type_without_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(1, 0, 'query');
+    $results = $query_function();
+
+    foreach( $results as $type => $count ) {
+      switch ($type ) {
+        case 'Victim':
+          $expected = 4;
+          $message = 'victims';
+          break;
+        case 'Perpetrator':
+          $expected = 2;
+          $message = 'perpetrators';
+          break;
+        case 'Witness':
+          $expected = 3;
+          $message = 'witnesses';
+          break;
+      }
+
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_type_with_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(1, 0, 'query');
+
+    $group = 1099;
+    $results = $query_function($group);
+
+    foreach( $results as $type => $count ) {
+      switch ($type ) {
+        case 'Victim':
+          $expected = 2;
+          $message = 'victims in group ' . $group;
+          break;
+        case 'Perpetrator':
+          $expected = 1;
+          $message = 'perpetrators in group ' . $group;
+          break;
+        case 'Witness':
+          $expected = 2;
+          $message = 'witnesses in group ' . $group;
+          break;
+      }
+
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_type_with_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(1, 1, 'query');
+
+    $group = 1100;
+    $results = $query_function($group, 1);
+
+    $result_type = key($results);
+    $count = $results[$result_type];
+    
+    $type_expected = 'Victim';
+    $expected = 2;
+    $type_message = 'searched for ' . $type_expected . ' in group ' . $group;
+    $count_message = $type_expected . ' in group ' . $group;
+
+    $this->assertEqual($result_type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $result_type) ) );
+    $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_type_without_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(1, 3, 'query');
+    $results = $query_function(NULL, 3);
+
+    $result_type = key($results);
+    $count = $results[$result_type];
+
+    $type_expected = 'Witness';
+    $expected = 3;
+    $type_message = 'searched for ' . $type_expected;
+    $count_message = $type_expected;
+
+    $this->assertEqual($result_type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $result_type) ) );
+    $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+  }
+
+
+/********************************************************************************************
+
+                        TEST ACTOR GENDER
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  public function test_actor_by_gender_without_result() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(2, 0, 'query');
+    $results = $query_function(9999);
+
+    if (empty($results)) {
+      $results = FALSE;
+    }
+    $this->assertEqual($results, FALSE, t('There isn\'t results to group 9999 | result: !count | expected: !expected', array('!expected' => FALSE, '!count' => $results) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_gender_without_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(2, 0, 'query');
+    $results = $query_function();
+
+    foreach( $results as $gender => $subs ) {
+      foreach( $subs as $type => $count ) {
+    
+        switch ($gender ) {
+          case 'Male':
+            switch ($type ) {
+              case 'Victim': $expected = 2; break;
+              case 'Perpetrator': $expected = 2; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - male
+            break;
+  
+          case 'Female':
+            switch ($type ) {
+              case 'Victim': $expected = 2; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 2; break;
+            } // switch - female
+            break;
+  
+        } // switch - gender
+        $message = $gender . ' ' . $type;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } // 
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_gender_with_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(2, 0, 'query');
+
+    $group = 1099;
+    $results = $query_function($group);
+
+    foreach( $results as $gender => $subs ) {
+      foreach( $subs as $type => $count ) {
+      
+        switch ($gender ) {
+          case 'Male':
+            switch ($type ) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - male
+            break;
+  
+          case 'Female':
+            switch ($type ) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - female
+            break;
+  
+        } // switch - gender
+        $message = $gender . ' ' . $type . ' in group ' . $group;;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } 
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_gender_with_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(2, 2, 'query');
+    
+    $group = 1100;
+    $results = $query_function($group, 2);
+    $type_expected = 'Perpetrator';
+
+    foreach( $results as $gender => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($gender) {
+          case 'Male': $expected = 1; break;
+          case 'Female': $expected = 0; break;
+        }
+        $type_message = 'searched for ' . $gender . ' ' . $type_expected;
+        $count_message = $gender . ' ' . $type_expected . ' in group ' . $group;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_gender_without_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(2, 3, 'query');
+    $results = $query_function(NULL, 3);
+    $type_expected = 'Witness';
+
+    foreach( $results as $gender => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($gender) {
+          case 'Male': $expected = 1; break;
+          case 'Female': $expected = 2; break;
+        }
+        $type_message = 'searched for ' . $gender . ' ' . $type_expected;
+        $count_message = $gender . ' ' . $type_expected;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+
+  }
+
+
+/********************************************************************************************
+
+                        TEST ACTOR ETHNICITY
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  public function test_actor_by_ethnicity_without_result() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(3, 0, 'query');
+    $results = $query_function(9999);
+
+    if (empty($results)) {
+      $results = FALSE;
+    }
+    $this->assertEqual($results, FALSE, t('There isn\'t results to group 9999 | result: !count | expected: !expected', array('!expected' => FALSE, '!count' => $results) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_ethnicity_without_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(3, 0, 'query');
+    $results = $query_function();
+
+    foreach( $results as $ethnicity => $subs ) {
+      foreach( $subs as $type => $count ) {
+      
+        switch ($ethnicity ) {
+          case 'ethnicity_1':
+            switch ($type ) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - ethnicity_1
+            break;
+  
+          case 'ethnicity_2':
+            switch ($type ) {
+              case 'Victim': $expected = 3; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - ethnicity_2
+            break;
+  
+          case 'ethnicity_3':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - ethnicity_3
+            break;
+        } // switch - ethnicity
+        $message = $ethnicity . ' ' . $type;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } 
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_ethnicity_with_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(3, 0, 'query');
+
+    $group = 1099;
+    $results = $query_function($group);
+
+    foreach( $results as $ethnicity => $subs ) {
+      foreach( $subs as $type => $count ) {
+      
+        switch ($ethnicity ) {
+          case 'ethnicity_1':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 0;
+                break;
+            } // switch - ethnicity_1
+            break;
+          case 'ethnicity_2':
+            switch ($type ) {
+              case 'Victim': $expected = 2; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - ethnicity_2
+            break;
+  
+          case 'ethnicity_3':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - ethnicity_3
+            break;
+  
+        } // switch - ethnicity
+        $message = $ethnicity . ' ' . $type . ' in group ' . $group;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } 
+    
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_ethnicity_with_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(3, 1, 'query');
+
+    $group = 1100;
+    $results = $query_function($group, 1);
+    $type_expected = 'Victim';
+
+    foreach( $results as $ethnicity => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($ethnicity) {
+          case 'ethnicity_1': $expected = 1; break;
+          case 'ethnicity_2': $expected = 1; break;
+          case 'ethnicity_3': $expected = 0; break;
+        }
+        $type_message = 'searched for ' . $ethnicity . ' ' . $type_expected . ' in group ' . $group;
+        $count_message = $ethnicity . ' ' . $type_expected . ' in group ' . $group;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_ethnicity_without_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(3, 1, 'query');
+
+    $results = $query_function(NULL, 1);
+    $type_expected = 'Victim';
+
+
+    foreach( $results as $ethnicity => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($ethnicity) {
+          case 'ethnicity_1': $expected = 1; break;
+          case 'ethnicity_2': $expected = 3; break;
+          case 'ethnicity_3': $expected = 0; break;
+        }
+        $type_message = 'searched for ' . $ethnicity . ' ' . $type_expected;
+        $count_message = $ethnicity . ' ' . $type_expected;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+    
+  }
+
+
+/********************************************************************************************
+
+                        TEST ACTOR POLITICAL AFFILIATION
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  public function test_actor_by_political_affiliation_without_result() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(4, 0, 'query');
+    $results = $query_function(9999);
+
+    if (empty($results)) {
+      $results = FALSE;
+    }
+    $this->assertEqual($results, FALSE, t('There isn\'t results to group 9999 | result: !count | expected: !expected', array('!expected' => FALSE, '!count' => $results) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_political_affiliation_without_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(4, 0, 'query');
+    $results = $query_function();
+
+    foreach( $results as $political_affiliation => $subs ) {
+      foreach( $subs as $type => $count ) {
+      
+        switch ($political_affiliation ) {
+          case 'political_affiliation_1':
+            switch ($type ) {
+              case 'Victim': $expected = 2; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 2; break;
+            } // switch - political_affiliation_1
+            break;
+  
+          case 'political_affiliation_2':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 0; break;
+            } // switch - political_affiliation_2
+            break;
+  
+          case 'political_affiliation_3':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - political_affiliation_3
+            break;
+        } // switch - political_affiliation
+        
+        $message = $political_affiliation . ' ' . $type;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } 
+    
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_political_affiliation_with_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(4, 0, 'query');
+
+    $group = 1100;
+    $results = $query_function($group);
+
+    foreach( $results as $political_affiliation => $subs ) {
+      foreach( $subs as $type => $count ) {
+      
+        switch ($political_affiliation ) {
+          case 'political_affiliation_1':
+            switch ($type ) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // switch - political_affiliation_1
+            break;
+  
+          case 'political_affiliation_2':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 0; break;
+            } // switch - political_affiliation_2
+            break;
+  
+          case 'political_affiliation_3':
+            switch ($type ) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 0; break;
+            } // switch - political_affiliation_3
+            break;
+  
+        } // switch - political_affiliation
+
+        $message = $political_affiliation . ' ' . $type . ' in group ' . $group;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    } 
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_political_affiliation_with_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(4, 2, 'query');
+
+    $group = 1100;
+    $results = $query_function($group, 2);
+    $type_expected = 'Perpetrator';
+
+    foreach( $results as $political_affiliation => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($political_affiliation) {
+          case 'political_affiliation_1': $expected = 0; break;
+          case 'political_affiliation_2': $expected = 1; break;
+          case 'political_affiliation_3': $expected = 0; break;
+        }
+        $type_message = 'searched for ' . $political_affiliation . ' ' . $type_expected;
+        $count_message = $political_affiliation . ' ' . $type_expected . ' in group ' . $group;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+    
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_political_affiliation_without_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(4, 3, 'query');
+
+    $results = $query_function(NULL, 3);
+    $type_expected = 'Witness';
+
+    foreach( $results as $political_affiliation => $subs ) {
+      foreach( $subs as $type => $count ) {
+        switch ($political_affiliation) {
+          case 'political_affiliation_1': $expected = 2; break;
+          case 'political_affiliation_2': $expected = 0; break;
+          case 'political_affiliation_3': $expected = 1; break;
+        }
+        $type_message = 'searched for ' . $political_affiliation . ' ' . $type_expected;
+        $count_message = $political_affiliation . ' ' . $type_expected;
+        $this->assertEqual($type, $type_expected, t('!type_message | result: !type | expected: !expected', array('!type_message' => $type_message, '!expected' => $type_expected, '!type' => $type) ) );
+        $this->assertEqual($count, $expected, t('!count_message | result: !count | expected: !expected', array('!count_message' => $count_message, '!expected' => $expected, '!count' => $count) ) );
+      }
+    }
+    
+  }
+
+/********************************************************************************************
+
+                         TEST ACTOR AGE
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  public function test_actor_by_age_without_result() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(5, 0, 'query');
+    $results = $query_function(9999);
+
+    if (empty($results)) {
+      $results = FALSE;
+    }
+    $this->assertEqual($results, FALSE, t('There isn\'t results to group 9999 | result: !count | expected: !expected', array('!expected' => FALSE, '!count' => $results) ) );
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_age_without_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(5, 0, 'query');
+    $age_ranges = $query_function();
+
+    foreach($age_ranges as $age_range => $types) {
+      foreach($types as $type => $count) {
+        switch ($age_range) {
+          case 'age_0_18':
+            switch($type) {
+              case 'Victim': $expected = 3; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // age_0_18
+            break;
+          case 'age_19_35':
+            switch($type) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 1; break;
+            } // age_19_35
+            break;
+          case 'age_36_54':
+            switch($type) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 0; break;
+            } // age_36_54
+            break;
+          case 'age_55_more':
+            switch($type) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // age_55_more
+            break;
+        } // switch age_range
+        $message = $type . ' ' . $age_range;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      } // foreach types
+
+    } // foreach age_ranges
+
+  }
+
+
+  /**
+   *
+   */
+  public function test_actor_by_age_with_group_without_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(5, 0, 'query');
+    $group = 1099;
+    $age_ranges = $query_function($group);
+
+    foreach($age_ranges as $age_range => $types) {
+      foreach($types as $type => $count) {
+        switch ($age_range) {
+          case 'age_0_18':
+            switch($type) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 0; break;
+            } // age_0_18
+            break;
+          case 'age_19_35':
+            switch($type) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 1; break;
+              case 'Witness': $expected = 1; break;
+            } // age_19_35
+            break;
+          case 'age_36_54':
+            switch($type) {
+              case 'Victim': $expected = 0; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 0; break;
+            } // age_36_54
+            break;
+          case 'age_55_more':
+            switch($type) {
+              case 'Victim': $expected = 1; break;
+              case 'Perpetrator': $expected = 0; break;
+              case 'Witness': $expected = 1; break;
+            } // age_55_more
+            break;
+        } // switch age_range
+        $message = $type . ' ' . $age_range . ' in group ' . $group;
+        $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+      } // foreach types
+
+    } // foreach age_ranges
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_age_with_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(5, 1, 'query');
+    $group = 1100;
+    $age_ranges = $query_function($group, 1);
+    $type = 'Victim';
+
+    foreach($age_ranges as $age_range => $types) {
+      switch ($age_range) {
+        case 'age_0_18': $expected = 2; break;
+        case 'age_19_35': $expected = 0; break;
+        case 'age_36_54': $expected = 0; break;
+        case 'age_55_more': $expected = 0; break;
+      } // switch age_range
+      $count = $age_ranges[$age_range][$type];
+      $message = $type . ' ' . $age_range . ' in group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+
+    } // foreach age_ranges
+
+  }
+
+  /**
+   *
+   */
+  public function test_actor_by_age_without_group_with_type() {
+    $this->_insert_actors();
+    $query_function = debaser2_reports_actor_functions(5, 2, 'query');
+
+    $age_ranges = $query_function(NULL, 2);
+    $type = 'Perpetrator';
+
+    foreach($age_ranges as $age_range => $types) {
+      switch ($age_range) {
+        case 'age_0_18': $expected = 0; break;
+        case 'age_19_35': $expected = 1; break;
+        case 'age_36_54': $expected = 1; break;
+        case 'age_55_more': $expected = 0; break;
+      } // switch age_range
+      $count = $age_ranges[$age_range][$type];
+      $message = $type . ' ' . $age_range;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+
+    } // foreach age_ranges
+
+  }
+
+
+/********************************************************************************************
+
+                   TEST PERPETRATORS GENDER x POLITICAL AFFILIATION
+
+********************************************************************************************/
+
+/**
+ *
+ */
+public function test_perpetrator_gender_political_affiliation_without_group() {
+  $this->_insert_actors();
+  $query_function = debaser2_reports_victims_functions('political_affiliation', 'perpetrator_gender', 'query');
+  $results = $query_function();
+
+  //$this->fail('<pre>' . print_r($results, TRUE) . '</pre>');
+
+  foreach($results as $gender => $political_affiliations){
+    foreach($political_affiliations as $political_affiliation => $count){
+      switch ($gender) {
+        case 'Male':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 1; break;
+            case 'political_affiliation_2': $expected = 1; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+        case 'Female':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 0; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+      }
+      $message = 'Perpetrators by Gender(' . $gender . ') x Political Affiliation(' . $political_affiliation . ') ';
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ *
+ */
+public function test_perpetrator_gender_political_affiliation_with_group() {
+  $this->_insert_actors();
+  $query_function = debaser2_reports_victims_functions('political_affiliation', 'perpetrator_gender', 'query');
+  $group = 1100;
+  $results = $query_function($group);
+
+  foreach($results as $gender => $political_affiliations){
+    foreach($political_affiliations as $political_affiliation => $count){
+      switch ($gender) {
+        case 'Male':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 0; break;
+            case 'political_affiliation_2': $expected = 1; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+        case 'Female':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 0; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+      }
+      $message = 'Perpetrators by Gender(' . $gender . ') x Political Affiliation(' . $political_affiliation . ') ';
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+
+/********************************************************************************************
+
+                   TEST ACTORS ETHNICITY x POLITICAL AFFILIATION
+
+********************************************************************************************/
+
+/**
+ *
+ */
+public function test_actor_ethnicity_political_affiliation_without_group() {
+  $this->_insert_actors();
+  $query_function = debaser2_reports_victims_functions('political_affiliation', 'ethnicity', 'query');
+  $results = $query_function();
+
+  //$this->fail('<pre>' . print_r($results, TRUE) . '</pre>');
+
+  foreach($results as $ethnicity => $political_affiliations){
+    foreach($political_affiliations as $political_affiliation => $count){
+      switch ($ethnicity) {
+        case 'ethnicity_1':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 2; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+        case 'ethnicity_2':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 2; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 1; break;
+          }
+          break;
+        case 'ethnicity_3':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 1; break;
+            case 'political_affiliation_2': $expected = 1; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+      }
+      $message = 'Actors by Ethnicity(' . $ethnicity . ') x Political Affiliation(' . $political_affiliation . ') ';
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ *
+ */
+public function test_actor_ethnicity_political_affiliation_with_group() {
+  $this->_insert_actors();
+  $query_function = debaser2_reports_victims_functions('political_affiliation', 'ethnicity', 'query');
+  $group = 1100;
+  $results = $query_function($group);
+
+  //$this->fail('<pre>' . print_r($results, TRUE) . '</pre>');
+
+  foreach($results as $ethnicity => $political_affiliations){
+    foreach($political_affiliations as $political_affiliation => $count){
+      switch ($ethnicity) {
+        case 'ethnicity_1':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 1; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+        case 'ethnicity_2':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 1; break;
+            case 'political_affiliation_2': $expected = 0; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+        case 'ethnicity_3':
+          switch($political_affiliation) {
+            case 'political_affiliation_1': $expected = 0; break;
+            case 'political_affiliation_2': $expected = 1; break;
+            case 'political_affiliation_3': $expected = 0; break;
+          }
+          break;
+      }
+      $message = 'Actors by Ethnicity(' . $ethnicity . ') x Political Affiliation(' . $political_affiliation . ') ';
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/********************************************************************************************
+
+                        FUNCTIONS TO HELP TESTS
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  private function _insert_actors() {
+    db_query("INSERT INTO {debaser2_actor_gender} VALUES (NULL, 'Male');"); // 1
+    db_query("INSERT INTO {debaser2_actor_gender} VALUES (NULL, 'Female');"); // 2
+
+    db_query("INSERT INTO {debaser2_actor_type} VALUES (NULL, 'Victim');"); // 1
+    db_query("INSERT INTO {debaser2_actor_type} VALUES (NULL, 'Perpetrator');"); // 2
+    db_query("INSERT INTO {debaser2_actor_type} VALUES (NULL, 'Witness');"); // 3
+
+    db_query("INSERT INTO {debaser2_actor_ethnicity} VALUES (NULL, 'ethnicity_1');"); // 1
+    db_query("INSERT INTO {debaser2_actor_ethnicity} VALUES (NULL, 'ethnicity_2');"); // 2
+    db_query("INSERT INTO {debaser2_actor_ethnicity} VALUES (NULL, 'ethnicity_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_actor_political_affiliation} VALUES (NULL, 'political_affiliation_1');"); // 1
+    db_query("INSERT INTO {debaser2_actor_political_affiliation} VALUES (NULL, 'political_affiliation_2');"); // 2
+    db_query("INSERT INTO {debaser2_actor_political_affiliation} VALUES (NULL, 'political_affiliation_3');"); // 3
+
+    // (age, age_0_18, age_19_35, age_36_54, age_55_more, case_id, group_id, debaser2_actor_political_affiliation_id, debaser2_actor_ethnicity_id, debaser2_actor_type_id, debaser2_actor_gender_id)
+
+    // 1 - Male, 34, political_affiliation_1, ethnicity_1, perpetrator
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 34, 0, 1, 0, 0, 63, 1099, 1, 1, 2, 1)");
+
+    // 2 - Male, 14, NULL, ethnicity_2, victim
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 14, 1, 0, 0, 0, 64, 1099, NULL, 2, 1, 1)");
+
+    // 3 - Female, 56, political_affiliation_1, ethnicity_2, victim
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 56, 0, 0, 0, 1, 63, 1099, 1, 2, 1, 2)");
+
+    // 8 - Male, 23, political_affiliation_3, ethnicity_2, witness
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 23, 0, 1, 0, 0, 66, 1099, 3, 2, 3, 1)");
+
+    // 9 - Female, 76, political_affiliation_1, ethnicity_3, witness
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 76, 0, 0, 0, 1, 63, 1099, 1, 3, 3, 2)");
+
+
+    // 4 - Female, 10, NULL, ethnicity_1, victim
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 10, 1, 0, 0, 0, 63, 1100, NULL, 1, 1, 2)");
+
+    // 5 - Male, 18, political_affiliation_1, ethnicity_2, victim
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 18, 1, 0, 0, 0, 65, 1100, 1, 2, 1, 1)");
+
+    // 6 - Male, 36, political_affiliation_2, ethnicity_3, perpetrator
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 36, 0, 0, 1, 0, 63, 1100, 2, 3, 2, 1)");
+
+    // 7 - Female, 17, political_affiliation_1, ethnicity_1, witness
+    db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 17, 1, 0, 0, 0, 65, 1100, 1, 1, 3, 2)");
+
+    // db_query("INSERT INTO {debaser2_actor} VALUES (NULL, 28, 0, 1, 0, 0, 63, 1099, 1, 3, 1, 1)");
+  }
+
+  /**
+   *
+   */
+  private function _get_tables_list() {
+    $tables = array(
+      'debaser2_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'case_id',
+        'group_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_actor_ethnicity' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_gender' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_political_affiliation' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_type' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case' => array (
+        'id',
+        'title',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'total_violations',
+        'group_id',
+        'debaser2_location_id',
+        'debaser2_case_status_id',
+        'debaser2_case_date_id',
+        'debaser2_case_intervention_reason_id',
+      ),
+      'debaser2_case_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_case_intervention_reason' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case_status' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_location' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation' => array (
+        'id',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'case_id',
+        'group_id',
+        'debaser2_location_id',
+        'debaser2_violation_date_id',
+        'debaser2_violation_case_status_id',
+        'debaser2_violation_type_id',
+        'debaser2_violation_international_standard_id',
+      ),
+      'debaser2_violation_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'debaser2_violation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_violation_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_violation_international_standard' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation_type' => array (
+        'id',
+        'title',
+      ),
+    );
+
+    return $tables;
+  }
+}
+

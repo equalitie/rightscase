@@ -1,0 +1,126 @@
+<html><h1>The H1 tag looks like this</h1>
+<p>The paragraph tag after an H1 tag looks like this</p>
+<h2>The H2 tag looks like this</h2>
+<p>The paragraph tag after an H2 tag looks like this</p>
+<h3>The H1 tag looks like this</h3>
+<p>The paragraph tag after an H3 tag looks like this</p>
+<h4>The H4 tag looks like this</h4>
+<p>The paragraph tag after an H4 tag looks like this</p>
+<h5>The H5 tag looks like this</h5>
+<p>The paragraph tag after an H5 tag looks like this</p>
+<ol>
+<li><strong>This is a strong element in an ordered list</strong></li>
+<li><i>This is an italic element in an ordered list</i></li>
+<li><b>This is a bold element in an ordered list</b></li>
+<li><em>This is an emphasized element in an ordered list</em></li>
+<li>This is a regular element in an ordered list</li>
+</ol>
+<ul>
+<li><strong>This is a strong element in an unordered list</strong></li>
+<li><i>This is an italic element in an unordered list</i></li>
+<li><b>This is a bold element in an unordered list</b></li>
+<li><em>This is an emphasized element in an unordered list</em></li>
+<li>This is a regular element in an unordered list</li>
+</ul>
+<blockquote>The block quote element looks like this</blockquote>
+<pre>The pre element looks like this</pre>
+<code>The code element looks like this</code>
+<br/>
+<span>The span element looks like this</span>
+<br/>
+<a href="#">The anchor element looks like this</a>
+<br/>
+<br/>
+<div style="float:left;margin:20px;width:200px;">Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.</div>
+<div style="float:left;margin:20px;width:400px;">Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.</div>
+<div style="float:left;margin:20px;width:600px;">Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.</div><style>.main-menu {
+    width: 780px;
+    height: 40px;
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat;
+    position: relative;
+	list-style-type:none;
+
+}
+
+.main-menu li a:link, .main-menu li a:visited {
+	
+    position: absolute;
+    top: 0;
+    height: 40px;
+    text-indent: -9000px;
+    overflow: hidden;
+}
+
+/**************************************************************/
+.main-menu .one a:link, .main-menu .one a:visited {
+    left: 0px;
+    width: 77px;
+}
+
+.main-menu .one a:hover, .main-menu .one a:focus {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -0px -40px;
+}
+
+.main-menu .one a:active {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -0px -80px;
+}
+
+
+/**************************************************************/
+.main-menu .two a:link, .main-menu .two a:visited {
+    left: 77px;
+    width: 118px;
+}
+
+.main-menu .two a:hover, .main-menu .two a:focus {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -77px -40px;
+}
+
+.main-menu .two a:active {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -77px -80px;
+}
+
+
+/**************************************************************/
+.main-menu .three a:link, .main-menu .three a:visited {
+    left: 195px;
+    width: 174px;
+}
+
+.main-menu .three a:hover, .main-menu .three a:focus {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -195px -40px;
+}
+
+.main-menu .three a:active {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -195px -80px;
+}
+
+/**************************************************************/
+.main-menu .four a:link, .main-menu .four a:visited {
+    left: 369px;
+    width: 139px;
+}
+
+.main-menu .four a:hover, .main-menu .four a:focus {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -369px -40px;
+}
+
+.main-menu .four a:active {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -369px -80px;
+}
+
+
+/**************************************************************/
+
+.main-menu .five a:link, .main-menu .five a:visited {
+    left: 508px;
+    width: 89px;
+}
+
+.main-menu .five a:hover, .main-menu .five a:focus {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -508px -40px;
+}
+
+.main-menu .five a:active {
+    background: url(http://www.debaser2/sites/all/themes/ninesixty/images/top-menu.gif) no-repeat -508px -80px;
+}</style></html>

@@ -1,0 +1,13 @@
+; $Id: debaser2.info,v 1.1.2.3 2009/06/28 13:19:07  Exp $: debaser2
+name = debaser2  modifications
+package = Debaser2
+dependencies[] = views
+dependencies[] = content
+core = 6.0
+description = modifies forms to display how we want them
+
+version = "6.x-1.0"
+core = "6.x"
+project = "debaser2"
+datestamp = "1231941649"
+

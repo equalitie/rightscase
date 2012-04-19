@@ -1,0 +1,64 @@
+/**
+ * @author cormac1
+ */
+
+
+$(document).ready(function(){
+	$('.actor').click(actorClicked);
+	$('.case').click(caseClicked);
+	$('.violation').click(violationClicked);
+	checkInitialConditions();
+});
+
+function checkInitialConditions(){
+	if($('#edit-case-options').getValue()>0){
+		caseClicked();
+	}else if($('#edit-violation-options').getValue()>0){
+		violationClicked();
+	}else{
+		actorClicked();
+	}
+}
+
+function actorClicked(){
+	//alert('hello');
+	 $('#edit-case-options').attr("disabled", true);
+	 $('#edit-violation-options').attr("disabled", true);
+	 $('#edit-case-location-options').attr("disabled", true);
+	 $('#edit-violation-location-options').attr("disabled", true);
+	 $('#edit-field-type').attr("disabled", false);
+	 $('#edit-actor-type').attr("disabled", false);
+	 $('#edit-case-options').setValue(0);
+	 $('#edit-case-location-options').setValue(0);
+	 $('#edit-violation-options').setValue(0);
+	 $('#edit-violation-location-options').setValue(0);
+}
+
+
+function caseClicked(){//edit-case-location-options
+	//alert('case hello');
+	$('#edit-field-type').attr("disabled", true);
+	$('#edit-actor-type').attr("disabled", true);
+	$('#edit-violation-options').attr("disabled", true);
+	$('#edit-violation-location-options').attr("disabled", true);
+	$('#edit-case-location-options').attr("disabled", false);
+	$('#edit-case-options').attr("disabled", false);
+	$('#edit-field-type').setValue(0);
+	$('#edit-actor-type').setValue(0);
+	$('#edit-violation-options').setValue(0);
+	$('#edit-violation-location-options').setValue(0);
+}
+
+function violationClicked(){//edit-violation-location-options
+	//alert('vio hello');
+	$('#edit-field-type').attr("disabled", true);
+	$('#edit-actor-type').attr("disabled", true);
+	$('#edit-case-options').attr("disabled", true);
+	$('#edit-case-location-options').attr("disabled", true);
+	$('#edit-violation-location-options').attr("disabled", false);
+	$('#edit-violation-options').attr("disabled", false);
+	$('#edit-field-type').setValue(0);
+	$('#edit-actor-type').setValue(0);
+	$('#edit-case-options').setValue(0);
+	$('#edit-case-location-options').setValue(0);
+}

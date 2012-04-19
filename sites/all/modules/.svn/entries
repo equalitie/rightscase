@@ -1,0 +1,291 @@
+10
+
+dir
+3
+svn://192.168.55.93/home/debaser2/svnrepos/public_html/sites/all/modules
+svn://192.168.55.93/home/debaser2/svnrepos
+
+
+
+2009-09-18T13:03:43.537795Z
+3
+cormac
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+
+admin_menu
+dir
+
+advanced_help
+dir
+
+amfphp
+dir
+
+apachesolr
+dir
+
+apachesolr-6.x-1.0-rc2.tar.gz
+file
+
+
+
+
+2009-09-08T12:00:37.000000Z
+990230aa30997da2cf2b5b1859a09fb8
+2009-09-18T13:03:43.537795Z
+3
+cormac
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+80110
+
+auto_nodetitle
+dir
+
+captcha
+dir
+
+captcha_pack
+dir
+
+cck
+dir
+
+computed_field
+dir
+
+date
+dir
+
+date-6.x-2.4.tar.gz
+file
+
+
+
+
+2009-09-18T10:34:12.000000Z
+7ec77ca6e2c706e527424aeb1b1eb279
+2009-09-18T13:03:43.537795Z
+3
+cormac
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+606282
+
+debaser2
+dir
+
+debaser2_custom
+dir
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleted
+
+devel
+dir
+
+drupalforfirebug
+dir
+
+drupalforfirebug-6.x-1.3.tar.gz
+file
+
+
+
+
+2009-09-08T13:53:39.000000Z
+35b1fe39b716f28b84d4cde3b847a43b
+2009-09-18T13:03:43.537795Z
+3
+cormac
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12011
+
+email
+dir
+
+filefield
+dir
+
+hierarchical_select
+dir
+
+hierarchical_select-6.x-3.x-dev.tar.gz
+file
+
+
+
+delete
+2009-09-16T15:50:10.000000Z
+7cf5055d729bf51ad6af7f9aa0307ac5
+2009-09-18T13:03:43.537795Z
+3
+cormac
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+95201
+
+imageapi
+dir
+
+imagecache
+dir
+
+imagefield
+dir
+
+imagefield_crop
+dir
+
+imce
+dir
+
+img_assist
+dir
+
+jquery_update
+dir
+
+lightbox2
+dir
+
+og
+dir
+
+open_flash_chart_api
+dir
+
+pathauto
+dir
+
+services
+dir
+
+tinymce
+dir
+
+token
+dir
+
+views
+dir
+
+wysiwyg
+dir
+

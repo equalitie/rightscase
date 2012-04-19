@@ -1,0 +1,102 @@
+<?php
+
+function defield_nodeapi(&$node, $op) {
+  if (($node->type == 'case') && ($op == 'insert')) {
+    $_REQUEST['destination'] = "cases/{$node->nid}";
+  }
+}
+
+/* This is a work-in-progress, to be able to link to a specific views-cycle tab */
+function defield_views_pre_render(&$view) {
+  if (isset($_GET['actor'])) {
+    foreach($view->result as $cycle_key => $cycle_object) {
+      //var_dump($cycle_object);
+      if ($cycle_object->nid == $_GET['actor']) {
+        //echo 'oui';
+        $view->style_options['params']['startingSlide'] = $cycle_key;
+      }
+    }
+    //var_dump($view->style_options['params']);
+    //print_r($view);
+
+    // todo: find the right place... 
+    $settings['params']['startingSlide'] = $_GET['slide'];
+
+    //die('pre_render');
+  }
+}
+
+function defield_field_formatter_info() {
+  $formatters = array(
+    'filetable' => array(
+      'label' => t('Display files in table'),
+      'field types' => array('filefield'),
+      'description' => t('Display files in a table, along with information'),
+      'multiple values' => CONTENT_HANDLE_MODULE,
+    ),
+  );
+  return $formatters;
+}
+
+function defield_theme() {
+  $theme = array(
+    'defield_formatter_filetable' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'defield_filetable_row' => array(
+      'arguments' => array('file' => NULL),
+    ),
+    'defield_filetable_head' => array(),
+  );
+  return $theme;
+}
+
+/* mostly taken from theme_filefield_formatter_default($element) */
+function theme_defield_formatter_filetable ($element) {
+  $output = '<table>';
+  $output .= theme('defield_filetable_head');
+
+  foreach(element_children($element) as $item) {
+    $file = $element[$item]['#item'];
+    $field = content_fields($element['#field_name']);
+    $output .= theme('defield_filetable_row', $file);
+  }
+
+  $output .= '</table>';
+
+  return $output;
+}
+
+function theme_defield_filetable_head() {
+  return "<thead><tr><td>Name</td><td>Type</td><td>Size</td><td>Description</td></tr></thead>";
+}
+
+/* Mostly taken from theme_filefield_file($file) */
+function theme_defield_filetable_row($file) {
+  if (empty($file['fid'])) {
+    return '';
+  }
+
+  $path = $file['filepath'];
+  $url = file_create_url($path);
+  $icon = theme('filefield_icon', $file);
+
+  /* add micro-format data */
+  $options = array(
+    'attributes' => array(
+      'type' => $file['filemime'] . '; length=' . $file['filesize'],
+    ),
+  );
+
+  $output = '<tr class="defield-file-row">'.
+    '<td class="defield-file-name">'. $icon . l($file['filename'], $url, $options) .'</td>'.
+    '<td class="defield-file-type">'. $file['filemime'] .'</td>'.
+    '<td class="defield-file-size">'. $file['filesize'] .'</td>'.
+    '<td class="defield-file-description">'. $file['data']['description'] .'</td>'.
+    '</tr>';
+
+  return $output;
+}
+
+
+

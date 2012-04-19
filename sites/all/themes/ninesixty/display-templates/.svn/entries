@@ -1,0 +1,59 @@
+10
+
+dir
+24
+svn://192.168.55.93/home/debaser2/svnrepos/public_html/sites/all/themes/ninesixty/display-templates
+svn://192.168.55.93/home/debaser2/svnrepos
+
+
+
+2009-10-04T14:00:02.869439Z
+24
+cormac
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+
+actor-display-views
+dir
+
+actor-files
+dir
+
+case-display-views
+dir
+
+case-search-views
+dir
+
+misc
+dir
+
+node-tpl
+dir
+
+recent-activity-views
+dir
+
+violation-display-views
+dir
+

@@ -1,0 +1,683 @@
+<?php
+
+define("ACTORTYPE", 1);
+define("CASESTATUS", 2);
+define("REGION", 3);
+define("ETHNICITY", 4);
+define("INTERNATIONALLAW", 5);
+define("VIOLATIONTYPE", 13);
+define("INTERVENTION", 7);
+define("AFFILIATION", 9);
+define("ITEMS_PER_PAGE", 1000000);
+
+
+require_once 'sites/all/modules/debaser2/include/statistics_single.admin.inc';
+
+function debaser2_perm() {
+    return array('access stats content');
+}
+
+function get_user_group() {
+    global $user;
+    $usernode = user_load(array('uid' => $user->uid));
+    //dprint_r($usernode);
+    if (isset($usernode->og_groups)) {
+        foreach ($usernode->og_groups as $variable) {
+            return $variable['nid'];
+        }
+    }
+}
+
+/*****************************************************************************************************************
+
+  CORE HOOKS
+
+*****************************************************************************************************************/
+
+/*
+
+Implementation of hook_menu - mostly used for stats pages
+*/
+function debaser2_menu() {
+    $items['stats'] = array(
+        'title' => 'Statistics',
+        'access arguments' => array('access content'),
+        'page callback' => 'get_statistics_display',
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    /*
+     *$items['stats/individual_statistics'] = array(
+     *    'title' => 'Graphs',
+     *    'page callback' => 'get_statistics_display',
+     *    'access arguments' => array('access stats content'),
+     *    'type' => MENU_LOCAL_TASK,
+     *    'weight' => 0,
+     *);
+     *$items['stats/correlative_statistics'] = array(
+     *    'title' => 'Victim vs Violation Graphs',
+     *    'page callback' => 'debaser2_correlative_page',
+     *    'access arguments' => array('access stats content'),
+     *    'file' => 'include/violation_actor_stats.admin.inc',
+     *    'type' => MENU_LOCAL_TASK,
+     *    'weight' => 0,
+     *);
+     */
+    
+    /*$items['stats/tag_cloud'] = array(
+        'title' => 'Violation Tags',
+        'page callback' => 'get_tag_cloud',
+        'access arguments' => array('access stats content'),
+        'type' => MENU_LOCAL_TASK,
+        'file' => 'include/tag_cloud.admin.inc',
+        'weight' => 2,
+    );*/
+
+    $items['stats/violation_list'] = array(
+      'title' => 'Violations List',
+      'page callback' => 'get_violation_list',
+      'access arguments' => array('access stats content'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'include/tag_cloud.admin.inc',
+      'weight' => 2,
+    );
+
+
+    $items['update_names'] = array(
+        'title' => 'update names',
+        'page callback' => 'update_actor_names',
+        'access arguments' => array('access stats content'),
+        'type' => MENU_CALLBACK,
+    );
+    
+    /**********************************************
+    
+    AJAX FUNCTIONS
+    
+    **********************************************/
+    $items['vioLoader'] = array(
+        'title' => 'show a Violation',
+        'page callback' => 'debaser2_get_violation',
+        'access arguments' => array('access content'),
+        'args' => 'nid',
+        'type' => MENU_CALLBACK,
+    );
+    $items['actorLoader'] = array(
+        'title' => 'load an actor',
+        'page callback' => 'debaser2_get_actor',
+        'access arguments' => array('access content'),
+        'args' => 'nid',
+        'type' => MENU_CALLBACK,
+    );
+    
+
+    return $items;
+}
+
+function debaser2_theme() {
+  $items['vio_page'] = array(
+    'arguments' => array(
+      'violation' => null,
+    ),
+    'template' => 'theme/vio-page',
+  );
+  $items['actor_page'] = array(
+    'arguments' => array(
+    	'actor' => NULL,
+     ),
+    'template' => 'theme/actor-page',
+  );
+
+  $items['violation_list'] = array(
+    'arguments' => array(
+      'tags' => NULL,
+    ),
+    'template' => 'theme/violation-list'
+  );
+
+  return $items;
+}
+
+function debaser2_validate($node){
+
+
+}
+
+
+function debaser2_date_diff($dformat, $endDate, $beginDate)
+{
+    $date_parts1=explode($dformat, $beginDate);
+    $date_parts2=explode($dformat, $endDate);
+    $start_date=gregoriantojd($date_parts1[1], $date_parts1[2], $date_parts1[0]);
+    $end_date=gregoriantojd($date_parts2[1], $date_parts2[2], $date_parts2[0]);
+    return round( ( $end_date - $start_date ) / 365 ) ;
+}
+
+
+function debaser2_get_actor( $nid, $case_id, $page ){
+  $actor_node = node_load( $nid );
+  //dpm( $actor_node );
+  /*$ethnicity = implode( get_terms_from_node_by_vid( $actor_node, ETHNICITY) );
+  $affiliation = implode( get_terms_from_node_by_vid( $actor_node, AFFILIATION ) );*/
+  $actor_type = strtolower( implode( get_terms_from_node_by_vid( $actor_node, ACTORTYPE ) ) );
+  
+  foreach ($actor_node->taxonomy as $term) {
+	  switch ($term->vid){
+		  case 4://Ethnicity
+			  $ethnicity  = $term->name;
+			  break;
+		  case 11://Non State
+			  $nonState  = $term->name;
+			  break;
+		  case 9://Affiliation
+			  $affiliation = $term->name;
+			  break;
+		  case 10://State
+			  $state = $term->name;
+			  break;
+		  case 14: //Type of Id
+		    $id_type = $term->name;
+		    break;
+	  }
+  }
+  
+  $dateOB = str_replace('T00:00:00', '', $actor_node->field_dob[0]['value']);
+  $dateOD = str_replace('T00:00:00', '', $actor_node->field_date_death[0]['value']);
+  $age = $actor_node->field_age[0]['value'];
+
+  if (!$age) {
+      if($dateOB){
+        if($dateOD){
+          $end_date = $dateOD;
+        } else {
+          $end_date = date('Y-m-d');
+        }
+        $age = debaser2_date_diff('-', $end_date, $dateOB);
+      } else {
+        $age = '';
+      }
+  }
+  
+  
+  $files="";
+  $photo = $actor_node->field_actor_photo[0]['filepath'];
+  //dprint_r ($actor_node);
+  //dpm( $photo );
+  if( !file_exists( $photo ) ){
+    $img_path = $_SERVER['HTTP_HOST'].'/'.str_ireplace('files', 'files/imagefield_thumbs', $photo);
+
+  }else{
+   $img_path = $_SERVER['HTTP_HOST'] .'/'. $photo;
+   
+  }
+
+  $gender = $actor_node->field_gender[0]['value'];
+  
+  $contact_details = $actor_node->field_contact_details[0]['value'];
+  // if(!$contact_details)$contact_details = "N/A";
+  $outcome = $actor_node->field_outcome[0]['value'];
+  foreach ($actor_node->field_actor_files as $file) {
+	  $files.='<a href=https://'.$_SERVER['HTTP_HOST'].'/'.$file['filepath'].' target="_blank">'.$file['filename']."</a><br/>";
+  }
+  
+  
+  $actor = array(
+    'ethnicity' => $ethnicity,
+    'affiliation' => $affiliation,
+    'actor_type' => $actor_type,
+    'dateOB' => $dateOB,
+    'dateOD' => $dateOD,
+    'files' => $files,
+    'img_path' => $img_path,
+    'nid' => $nid,
+    'gender' => $gender,
+    'age' => $age,
+    'contact_details' => $contact_details,
+    'body' => $actor_node->body,
+    'outcome' => $outcome,
+    'case_id' => $case_id,
+    'title' => $actor_node->field_actor_name[0]['value'],
+    'state' => $state,
+    'nonState' => $nonState,
+    'id_type' => $id_type,
+    'id_number' => $actor_node->field_actor_id_number[0]['value'],
+  );
+  
+  foreach($actor as $key => $value) {
+    if ($value == '' || !$value) {
+      $actor[$key] = t("N/A");
+    }
+  }
+  
+  $html = theme('actor_page', $actor);
+  return drupal_json(array('html_content' => $html));
+}
+
+/*
+
+get a violation - used for ajax loading of violations - preprocess all fields for display on the 
+theme/vio-page.tpl.php file
+
+*/
+function debaser2_get_violation( $nid, $case_id, $page ) {
+    $vio = node_load( $nid ); 
+    
+    
+    $victims = debaser2_get_actors_for_violations( $vio );  
+    $perps = debaser2_get_actors_for_violations( $vio , 'field_violation_perpetrator' );
+    $vio_tags = implode( get_terms_from_node_by_vid( $vio, VIOLATIONTYPE ) );
+    $standard = implode( get_terms_from_node_by_vid( $vio, INTERNATIONALLAW ) );
+    $chain = $vio->field_chain_of_events[0]['value'];
+    $location = $vio->field_map_ref;
+    foreach ($vio->taxonomy as $term) {
+	    switch ($term->vid){
+		  case 3://Location
+			  $region  = $term->name;
+			  break;
+      }
+    }
+    $date_type = 'custom';
+    $custom_type = 'm/d/Y';
+    $date = str_replace('T00:00:00', '', $vio->field_vio_date[0]['value']);
+    $dateTo = str_replace('T00:00:00', '', $vio->field_vio_date[0]['value2']);
+    $markers = unserialize( $vio->field_markers[0]['value'] );
+    $latlng = getVioLatLng( $markers );
+    
+    $violation = array(
+      'victims' => $victims,
+      'perps' => $perps,
+      'vio_tags' => $vio_tags,
+      'standard' => $standard,
+      'region' => $region,
+      'date' => $date,
+      'dateTo' => $dateTo,
+      'case_id' => $case_id,
+      'chain_of_events' => $chain,
+      'location' => $location,
+      'nid' => $nid,
+      
+    );
+    
+    $html = theme( 'vio_page', $violation );
+    return drupal_json(array('html_content' => $html, 'latlng' => $latlng,));
+}
+
+
+/*
+Return an array of latitudes and longtitudes to be displayed on the violation google map
+*/
+function getVioLatLng( $markers ) {
+    $flag = 0;$i=0;
+    if(!$markers)return null;
+    if( count( $markers > 0 ) ){
+      foreach ($markers as $point)
+      {
+        $mypoint = explode(',', $point);
+        if($mypoint[0]){
+          $flag = 1;
+          $points[$i]['lat'] = $mypoint[0];
+          $points[$i]['lng'] = $mypoint[1];
+          $i++;
+        }
+      }
+     
+      if($flag)return $points ;
+    }
+    return null;
+}
+
+
+/*
+Get a list of actors or perpetrators for the violation
+
+*/
+function debaser2_get_actors_for_violations($node,  $field = 'field_violation_victim'){
+  $flag = 0;
+  $query = '';
+  
+  if(count( $node->$field ) ){
+    foreach( $node->$field as $victim_id){
+      if( intval( $victim_id['nid'] ) ){
+        if( !$flag ){
+          $query .= "SELECT title FROM {node} WHERE nid=" . $victim_id['nid'];
+          $flag=1;
+        }
+        else $query .= ' OR nid=' . $victim_id['nid'];
+      }
+    }
+    
+    if( strlen( $query ) )$result = db_query( $query );
+  
+    $flag=0;$actor_names='';
+    while( $row = db_fetch_object( $result ) ){
+      if( !$flag ){
+        $actor_names .= $row->title;
+        $flag = 1;
+      }else $actor_names .= ', ' . $row->title;
+    }
+    
+  }
+  return $actor_names;
+}
+
+
+function update_actor_names() {
+    $query = "SELECT nid FROM node WHERE type = 'actor'";
+    $result = db_query($query);
+    while ($row = db_fetch_object($result)) {
+        $node = node_load("$row->nid");  
+        $node->field_actor_name[0]['value'] = $node->title;
+        node_save($node);
+    }
+    return "0";
+}
+
+/* * ************************* TAXONOMY MANIPULATION FUNCTIONS ******************************************** */
+
+function load_taxonomy_term($taxonomy, $vid) {
+    foreach ($taxonomy as $term) {
+        if ($term->vid == $vid)
+            return $term;
+    }
+}
+
+function get_term_name($term_id) {
+    $tax = taxonomy_get_term($term_id);
+    return $tax->name;
+}
+
+function get_parent_id($parent) {
+    foreach ($parent as $key => $variable) {
+        return $key;
+    }
+}
+
+
+function _debaser2_get_taxonomy_terms( $vid ){
+  $terms = taxonomy_get_tree( $vid );
+  $standards[0] = t('<Select>');
+  foreach ($terms as $term){
+    $standards[$term->tid] = $term->name;
+  }
+  return $standards;
+}
+
+function debaser2_get_vid($vocabulary_name) {
+  // replace dashes with spaces
+  $vocabulary_name = str_replace('-', ' ', $vocabulary_name);
+
+  // find the vid
+  $result = db_query("SELECT vid FROM {vocabulary} WHERE name = '%s'", $vocabulary_name);
+  $vid = db_fetch_object($result)->vid;
+
+  if($vid) {
+  return $vid;
+  }
+  else {
+  return FALSE;
+  }
+}
+/* * ****************************************************************************************************** */
+
+
+/* * ************************* VIEWS MANIPULATION FUNCTIONS *********************************************** */
+
+/**
+ * get the results of a views execution using the views 2 API
+ * @param object $view_name
+ * @param object $arguments [optional]
+ * @return views result
+ */
+function get_views_result($view_name, $arguments=0) {
+    $view = views_get_view($view_name);
+    $view->set_items_per_page(0);
+    if ($arguments
+
+        )$view->set_arguments($arguments);
+    $view->execute();
+    return $view->result;
+}
+
+function get_display_result($view_name, $arguments=0) {
+    $view = views_get_view($view_name);
+    if ($arguments
+
+        )$view->set_arguments($arguments);
+    $view->set_display('attachment_1');
+    $view->execute();
+    return $view->result;
+}
+
+
+function debaser2_views_pre_view (&$view, &$display_id, &$args){
+  //
+  if( $view->name == 'violation_victim_selector' || $view->name == 'violation_perp_selector' ){
+    $dest = explode('/', $_GET['destination']);
+    $view->set_arguments(array( $dest[1] ));
+  }
+}   
+
+/**
+ * Implementation of hook_block
+ */
+function debaser2_block($op = 'list', $delta = 0, $edit = array()) {
+    switch ($op) {
+        case 'list':
+            $blocks[0]['info'] = t('Cases info block');
+            $blocks[0]['cache'] = BLOCK_CACHE_PER_USER;
+            return $blocks;
+            break;
+        case 'view':
+            switch ($delta) {
+                case 0:
+                    $block['subject'] = t('Cases info block');
+                    $block['content'] = cases_info_block();
+                    return $block;
+                    break;
+            }
+    }
+}
+
+function cases_info_block() {
+  global $user;
+  if( count($user->og_groups) > 1 ){
+    $query = 'SELECT COUNT(DISTINCT content_type_case.nid) FROM content_type_case';
+  } else {
+    $group = '';
+    foreach($user->og_groups as $key => $value){
+      $group = $key;
+    }
+    $query = sprintf( 
+    'SELECT COUNT(DISTINCT content_type_case.nid) FROM content_type_case 
+    LEFT JOIN og_ancestry ON content_type_case.nid = og_ancestry.nid 
+    WHERE og_ancestry.group_nid=%d', $group );
+  }
+  $result = db_query( $query );
+  $num = db_result( $result );
+    $view = views_get_view('case_list');
+    $view->set_items_per_page(10000);
+    $view->execute();
+    return "<div><p>Total number of cases: " . $num . "</p></div>";
+}
+
+/* * ************************** FORM BUILDING FUNCTIONS *************************************************** */
+
+function select_region_widget() {
+    $vocab = taxonomy_get_tree(3);
+    $region_names = array();
+    $region_names[0] = t("Select Region");
+    $i = 0;
+    foreach ($vocab as $term) {
+        if (!$term->depth) {
+            $region_names[$term->tid] = $term->name;
+        };
+    }
+    $location = array(
+        '#title' => 'Location',
+        '#type' => 'select',
+        '#description' => t('Select Region you want to graph, or leave blank to graph by top level regions'),
+        '#enabled' => FALSE,
+        '#options' => $region_names,
+    );
+    return $location;
+}
+
+function debaser2_user($op) {
+
+    if ($op == "login") {
+
+        drupal_goto( $base_url );
+    }
+}
+
+/*********************************************** HELPER FUNCTIONS ********************************************/
+
+//function to empty an array of all but the selected value
+function truncate_array($base_array, $sel_key) {
+    foreach ($base_array as $key => $value) {
+        if ($key == $sel_key
+
+            )return array($key => $value);
+    }
+}
+
+/*************************************** AJAX RELATED FUNCTIONS *********************************************/
+
+function get_terms_from_node_by_vid($node, $vid) {
+    $terms = array();
+    $i = 0;
+    foreach ($node->taxonomy as $term) {
+        if ($term->vid == $vid) {
+            $terms[$i] = $term->name;
+            $i++;
+        }
+    }
+    return $terms;
+}
+
+/**
+ * Implement hook_form_alter
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
+ * @return void
+ */
+function debaser2_form_alter(&$form, $form_state, $form_id) {
+  if ('violation_node_form' == $form_id) {
+    $form['#submit'][] = 'debaser2_violation_prepare_markers';
+  }
+}
+
+/**
+ * Save markers
+ * @param array $form
+ * @param array $form_state
+ * @return void
+ */
+function debaser2_violation_prepare_markers($form, &$form_state) {
+  if (isset($form_state['clicked_button']['#post']['location_markers'])) {
+    $markers = serialize($form_state['clicked_button']['#post']['location_markers']);
+    $form_state['values']['field_markers'][0]['value'] = $markers;
+  }
+}
+
+/**
+ * Called in the age field configuration
+ *
+ */
+function debaser2_calculate_age(&$node, &$node_field) {
+    $dob = str_replace('T00:00:00', '', $node->field_dob[0]['value']);
+    $dod = str_replace('T00:00:00', '', $node->field_date_death[0]['value']);
+    $today_date = date('Y-m-d');
+    $flag = 0;
+    if( $dob && $dod ){
+      $age = debaser2_date_diff( '-', $dod, $dob );
+      $flag = 1;
+    }
+    
+    if( $dob && $flag===0 ){
+        $age = debaser2_date_diff( '-', $today_date, $dob );
+        $flag = 2;
+    }
+    
+    switch($flag){
+      case 1:
+        if( $age<0 ){
+          drupal_set_error( t('date of birth after date of death') );
+        } else {
+          $node_field[0]['value'] = $age;
+        }
+      break;
+      case 2:
+        if( $age<0 ){
+          drupal_set_error( t('date of birth after current date') );
+        } else {
+          $node_field[0]['value'] = $age;
+        }
+    }
+}
+
+/**
+ * Implementation of hook_theme_registry_alter().
+ * Based on the jquery_update module.
+ *
+ * Make this page preprocess function runs *last*,
+ * so that a theme can't call drupal_get_js().
+ */
+function debaser2_theme_registry_alter(&$theme_registry) {
+  if (isset($theme_registry['page'])) {
+    // See if our preprocess function is loaded, if so remove it.
+    if ($key = array_search('debaser2_preprocess_page', 
+          $theme_registry['page']['preprocess functions'])) {
+      unset($theme_registry['page']['preprocess functions'][$key]);
+    }
+    // Now add it on at the end of the array so that it runs last.
+    $theme_registry['page']['preprocess functions'][] = 'debaser2_preprocess_page';
+
+  } 
+}
+
+/**
+ * Implementation of moduleName_preprocess_hook().
+ * Based on the jquery_update module functions.  *
+ * Strips out JS and CSS for a path.
+ */
+function debaser2_preprocess_page(&$variables, $arg = 'my_page', $delta=0) {
+  $dpath = drupal_get_path( 'module', 'debaser2' );
+  if (arg(0) == 'node') {
+    $node = node_load(arg(1));
+    if($node->type == 'violation'  || arg( 2 ) === 'violation' ) {
+      // dprint_r('>>>>>>>>>>>>>>>>>>>>>>> variable scripts <<<<<<<<<<<<<<<<<<<<<<<<<<<');
+      // dprint_r($variables['scripts']);
+        drupal_add_js( $dpath . '/js/jquery/jquery-1.6.4.min.js' ); 
+        drupal_add_js( $dpath . '/js/jquery/jquery-ui-1.8.16.custom.min.js' ); 
+        drupal_add_css( $dpath . '/css/mydate.css' );
+        $styles = drupal_add_css( $dpath . '/js/jquery/jquery-ui-1.8/development-bundle/themes/base/jquery.ui.datepicker.css' );
+        
+      $scripts = drupal_add_js();
+      // dprint_r('>>>>>>>>>>>>>>>>>>>>>>>>>>>>> scripts <<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+      
+      if( !empty( $variables['styles'] ) ){
+        unset( $styles['all']['module']['sites/all/modules/jquery_ui/jquery.ui/themes/base/ui.datepicker.css'] );
+        $variables['styles'] = drupal_get_css( $styles );
+      }
+
+
+
+      // dprint_r($scripts);
+      if ( !empty($variables['scripts']) ) {
+        $path = drupal_get_path('module', 'jquery_ui');
+        unset($scripts['module'][$path . '/jquery.ui/ui/minified/ui.core.min.js']);
+        unset($scripts['module'][$path . '/jquery.ui/ui/minified/effects.core.min.js']);
+        unset($scripts['module'][$path . '/jquery.ui/ui/minified/effects.drop.min.js']);
+        unset($scripts['module'][$path . '/jquery.ui/ui/minified/ui.datepicker.min.js']);
+        // $scripts['theme']["/sites/all/themes/ninesixty/js/jquery-ui-1.8.12.custom.min.js"];
+        // dprint_r('>>>>>>>>>>>>>>>>>>>>>>>>>> scripts <<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+        $variables['scripts'] = drupal_get_js('header', $scripts);
+        // dprint_r('>>>>>>>>>>>>>>>>>>>>>>>>>>>>> variables scripts <<<<<<<<<<<<<<<<<<<<<<<');
+        // dprint_r($variables['scripts']);
+        // $variables['scripts'] = $scripts;
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+.ui-autocomplete, .ui-datepicker{ 
+  background-color:white;
+}
+.ui-autocomplete{
+  width: 150px;
+}
+
+.ui-autocomplete li{
+  list-style:none;
+}
+
+.ui-autocomplete li:hover {
+  background-color: #cecece;
+  cursor: pointer;
+}

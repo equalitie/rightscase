@@ -1,0 +1,141 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Luis Fernando do Nascimento
+Creation Date : 15/11/2011
+Description   : Test case to compare data transfered between drupal tables and report new ones
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class Debaser_Transfer_Test_Terms extends DrupalWebTestCase{
+
+  protected $privileged_user;
+
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Data Transfer - Terms'),
+      'description' => t('Compare Terms between Drupal and New Report Tables.'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports', 'debaser2_transfer'
+    );
+
+    //Create some Drupal Tables (Nodes, Terms...) with data
+    $this->_insert_data();
+
+    //Create Transfer Aux Table and Populate it
+    $data   = debaser2_transfer_get_term_data();
+    $result = debaser2_transfer_insert_term_data($data['items']);
+
+    //Create and log in our privileged user.
+    //$this->privileged_user = $this->drupalCreateUser( array(
+    //  'debaser2 transfer admin page',
+    //));
+    //$this->drupalLogin($this->privileged_user);
+
+  }
+
+
+  //Get Data from sql file and insert on test tables
+  public function _insert_data(){
+    $path = drupal_get_path( 'module', 'debaser2_transfer' );
+
+    $handle  = @fopen( $path . "/sql/debaser2_transfer.sql", "r" );
+    $queries = array();
+
+    if ($handle) {
+      while ( ( $buffer = fgets( $handle, 4096 ) ) !== false ) {
+        if( strpos( $buffer, 'INSERT INTO' ) !== false || strpos( $buffer, 'CREATE TABLE' ) !== false ) {
+          $queries[] = $buffer;
+          db_query( $buffer );
+        }
+      }
+      fclose( $handle );
+    }
+  }
+
+   /**
+   * Execute tests to verify Terms created
+   *
+   */
+  public function test_term_data() {
+    $data   = debaser2_transfer_get_term_data();
+    $result = debaser2_transfer_insert_term_data($data['items']);
+
+    //Define Destination Tables based on Vocabulary Id
+    $destination = array( 1 => 'debaser2_actor_type',
+                          2 => 'debaser2_case_status',
+                          3 => 'debaser2_location',
+                          4 => 'debaser2_actor_ethnicity',
+                          5 => 'debaser2_violation_international_standard',
+                          7 => 'debaser2_case_intervention_reason',
+                          9 => 'debaser2_actor_political_affiliation',
+                         13 => 'debaser2_violation_type',
+                        );
+
+    foreach($data['items'] as $term) {
+      //Search for this case in the new tables
+      $table = $destination[$term['vid']];
+
+      if( $term['vid'] == 2 ) {
+
+      } else {
+
+        //Verify if term exists on corresponding table and check if term is excatly euqal to the original one.
+        $query = "SELECT t.title,
+                         td.name
+                    FROM {" . $table . "} t
+              INNER JOIN {debaser2_aux_terms} db2at ON  ( t.id = db2at.id AND db2at.vid = " . $term['vid'] . " )
+              INNER JOIN {term_data} td ON ( td.tid = db2at.tid AND td.vid = db2at.vid )
+                   WHERE t.title = '%s'";
+
+        $term_result = db_query( $query, $term['name'] );
+        $valid = ($term_result->num_rows > 0);
+        $term_data = db_fetch_array( $term_result );
+
+        //Verify if the term was found
+        $this->assertTrue($valid, 'Term <b>' . $term['name'] . '</b> successfuly created on table <b>' . $table . '</b>');
+
+        //If term was found, try to compare to it's original
+        if($valid) {
+          $this->assertEqual($term_data['title'], $term_data['name'], 'Term created is iqual to his original. <br><b>New:</b> ' . $term_data['title'] . ' <br><b>Original:</b> ' . $term_data['name'] );
+        }
+      }
+    }
+  }
+
+
+  /**
+   * Clear leftover tables
+   */
+  public function _ClearTables(){
+    $tables = array('content_field_case',
+                    'content_field_violation_perpetrator',
+                    'content_field_violation_victim',
+                    'content_type_actor',
+                    'content_type_case',
+                    'content_type_violation',
+                    'og_ancestry');
+
+    foreach( $tables as $table ) {
+      db_query('DROP TABLE {' . $table . '}');
+    }
+  }
+
+
+
+
+
+}
+

@@ -1,0 +1,10 @@
+; $Id: cache_disable.info,v 1.1.4.1 2008/02/21 00:00:46 dmitrig01 Exp $
+name = Cache disable
+description = Disables all caches
+core = 6.x
+; Information added by drupal.org packaging script on 2008-02-21
+version = "6.x-1.0"
+core = "6.x"
+project = "cache_disable"
+datestamp = "1203552304"
+

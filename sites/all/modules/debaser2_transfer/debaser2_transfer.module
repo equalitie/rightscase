@@ -1,0 +1,701 @@
+<?php
+
+/**
+ *
+ *
+ */
+function debaser2_transfer_perm() {
+  return array(
+    'debaser2 transfer admin page',
+  );
+}
+
+
+
+/**
+ *
+ *
+ */
+function debaser2_transfer_menu() {
+  $items['admin/transfer'] = array(
+    'title' => 'DEBASER2 Migration Tool',
+    'page callback' => 'debaser2_transfer_contents',
+    'access arguments' => array('debaser2 transfer admin page'),
+    'type' => MENU_CALLBACK,
+
+  );
+
+  return $items;
+}
+
+
+
+/**
+ *
+ *
+ */
+function debaser2_transfer_contents() {
+
+
+
+  return '<p>' . t('Some Content') . '</p>';
+}
+/**
+ *  Get all case data need to be transfered
+ *
+ */
+function debaser2_transfer_get_case_data() {
+  $sql = "    SELECT n.nid,
+                     n.title,
+                     DATE_FORMAT(ctc.field_case_date_value, '%e') as day,
+		                 DATE_FORMAT(ctc.field_case_date_value, '%m') as month,
+		                 DATE_FORMAT(ctc.field_case_date_value, '%Y') as year,
+                     oga.group_nid AS group_id,
+
+                    (SELECT count(*)
+                       FROM {content_field_case} cfc
+                      INNER JOIN {node} n2 ON (n2.nid = cfc.nid AND n2.vid = cfc.vid AND n2.type='actor')
+                      INNER JOIN {term_node} tn ON(tn.nid = n2.nid AND tn.vid = n2.vid AND tn.tid = 1)
+                      WHERE cfc.field_case_nid = n.nid) as total_victims,
+
+                    (SELECT count(*)
+                       FROM {content_field_case} cfc
+                      INNER JOIN {node} n2 ON (n2.nid = cfc.nid AND n2.vid = cfc.vid AND n2.type='actor')
+                      INNER JOIN {term_node} tn ON(tn.nid = n2.nid AND tn.vid = n2.vid AND tn.tid = 2)
+                      WHERE cfc.field_case_nid = n.nid) as total_perpetrators ,
+
+                    (SELECT count(*)
+                       FROM {content_field_case} cfc
+                      INNER JOIN {node} n2 ON (n2.nid = cfc.nid AND n2.vid = cfc.vid AND n2.type='actor')
+                      INNER JOIN {term_node} tn ON(tn.nid = n2.nid AND tn.vid = n2.vid AND tn.tid = 3)
+                      WHERE cfc.field_case_nid = n.nid) as total_witnesses,
+
+		                (SELECT count(*)
+                       FROM {content_field_case} cfc
+                      INNER JOIN {node} n2 ON (n2.nid = cfc.nid AND n2.vid = cfc.vid AND n2.type='violation')
+                      WHERE cfc.field_case_nid = n.nid) as total_violations,
+
+                   td.tid,
+                   td.vid,
+        	         td.name
+
+                FROM {node} n
+          INNER JOIN {content_type_case} ctc  ON ( n.vid = ctc.vid AND n.nid = ctc.nid AND n.type = 'case')
+          INNER JOIN {og_ancestry} oga ON (oga.nid = n.nid)
+          INNER JOIN {term_node} tn ON (tn.nid = n.nid)
+          INNER JOIN {term_data} td ON (td.tid = tn.tid)";
+
+
+  $result = db_query( $sql );
+  $processed = array();
+  while ( $data = db_fetch_array( $result ) ) {
+
+    //Add Basic information to the case
+    if( !isset( $processed[$data['nid']] ) ) {
+      $processed[$data['nid']] = array( 'title' => $data['title'],
+                                          'day' => $data['day'],
+                                        'month' => $data['month'],
+                                         'year' => $data['year'],
+                                     'group_id' => $data['group_id'],
+                                'total_victims' => $data['total_victims'],
+                           'total_perpetrators' => $data['total_perpetrators'],
+                              'total_witnesses' => $data['total_witnesses'],
+                             'total_violations' => $data['total_violations'],
+                                      );
+    }
+
+    switch( $data['vid'] ) {
+      case 2:
+        //Get parent Item
+        $parents = array_values( taxonomy_get_parents( $data['tid'] ) );
+        $term    = $parents[0];
+        if (!$parents) {
+          $term->tid = $data['tid'];
+          $term->vid = $data['vid'];
+        }
+        //Will store just the top level for now
+        $processed[$data['nid']]['debaser2_case_status_id'] = debaser2_transfer_get_converted_id( $term->tid, $term->vid );
+        break;
+
+      case 3:
+        $processed[$data['nid']]['debaser2_location_id'] = debaser2_transfer_get_converted_id( $data['tid'], $data['vid'] );
+        break;
+
+      case 7:
+        $processed[$data['nid']]['debaser2_case_intervention_reason_id'] = debaser2_transfer_get_converted_id( $data['tid'], $data['vid'] );
+        break;
+
+    }
+
+    //If vocabulary is case_status
+    if( $data['vid'] == 2 ) {
+      $parents = array_values( taxonomy_get_parents( $data['tid'] ) );
+      $term    = $parents[0];
+      if (!$parents) {
+        $term->tid = $data['tid'];
+        $term->vid = $data['vid'];
+      }
+      //Stores the first level
+      $processed[$data['nid']]['terms'][] = array( 'tid' => $term->tid,
+                                                   'vid' => $term->vid,
+                                                  'text' => $term->name,
+                                                 'level' => 1 );
+    } else {
+      $processed[$data['nid']]['terms'][] = array( 'tid' => $data['tid'],
+                                                   'vid' => $data['vid'],
+                                                  'text' => $data['name'] );
+    }
+  }
+
+  return array('items' => $processed, 'quantity' => count($processed) );
+}
+
+
+
+/**
+ *  Transfer all case data to new report tables
+ *
+ */
+function debaser2_transfer_insert_case_data($data) {
+
+  //Clean table contents
+  db_query('TRUNCATE {debaser2_case}');
+  db_query('TRUNCATE {debaser2_case_date}');
+
+  //Insert each case
+  foreach( $data as $nid => $case ) {
+
+    $insert_case_date = array(
+      'day'   => $case['day'],
+      'month' => $case['month'],
+      'year'  => $case['year'],
+    );
+
+    //Insert into date table
+    $result = drupal_write_record('debaser2_case_date', $insert_case_date);
+    $date_id = db_last_insert_id('debaser2_case_date', 'id');
+
+    //Insert into case table
+    $insert_case = array(
+      'title'                                => $case['title'],
+      'total_victims'                        => $case['total_victims'],
+      'total_perpetrators'                   => $case['total_perpetrators'],
+      'total_witnesses'                      => $case['total_witnesses'],
+      'total_violations'                     => $case['total_violations'],
+      'group_id'                             => $case['group_id'],
+      'debaser2_case_status_id'              => $case['debaser2_case_status_id'],
+      'debaser2_location_id'                 => $case['debaser2_location_id'],
+      'debaser2_case_date_id'                => $date_id,
+      'debaser2_case_intervention_reason_id' => $case['debaser2_case_intervention_reason_id'],
+    );
+
+    $result  = drupal_write_record('debaser2_case', $insert_case);
+    $case_id = db_last_insert_id('debaser2_case', 'id');
+
+    //List with old and new cases
+    $new_cases[$nid] = $case_id;
+  }
+
+  return array('items' => $new_cases, 'quantity' => count($new_cases) );
+}
+
+
+
+/**
+ *  Get all actor data need to be transfered
+ *
+ */
+function debaser2_transfer_get_actor_data($cases) {
+  $fields = array(
+              1 => 'debaser2_actor_type_id',
+              4 => 'debaser2_actor_ethnicity_id',
+              9 => 'debaser2_actor_political_affiliation_id',
+            );
+
+  $sql = "SELECT n.nid AS nid,
+                 oga.group_nid AS group_id,
+                 cta.field_actor_name_value AS actor_name,
+                 cta.field_gender_value AS gender,
+                 cta.field_age_value AS age,
+	               td.tid AS term_tid,
+	               td.vid AS term_vid,
+		             td.name AS term_name,
+		             cfc.field_case_nid as case_nid
+          	FROM {node} n
+      INNER JOIN {content_type_actor} cta  ON ( n.vid = cta.vid AND n.nid = cta.nid AND n.type = 'actor')
+      INNER JOIN {content_field_case} cfc  ON ( cfc.nid = cta.nid AND cfc.vid = cta.vid)
+      INNER JOIN {og_ancestry} oga ON (oga.nid = n.nid)
+      INNER JOIN {term_node} tn ON (tn.nid = n.nid)
+      INNER JOIN {term_data} td ON (td.tid = tn.tid)
+          WHERE td.vid IN( 1, 4, 9)";
+
+  $result = db_query( $sql );
+  $processed = array();
+  while ( $data = db_fetch_array( $result ) ) {
+
+    //Add Basic information to the case
+    if( !isset( $processed[$data['nid']] ) ) {
+      $processed[$data['nid']] = array( 'age' => $data['age'],
+                                       'name' => $data['actor_name'],
+                                    'case_id' => $cases[ $data['case_nid'] ],
+                                   'group_id' => $data['group_id'],
+                   'debaser2_actor_gender_id' => ( $data['gender'] == 'male' ) ? 1 : 2,
+                                   'age_0_18' => ( $data['age'] >= 0  && $data['age'] <= 18 ) ? 1 : 0,
+                                  'age_19_35' => ( $data['age'] >= 19 && $data['age'] <= 35 ) ? 1 : 0,
+                                  'age_36_54' => ( $data['age'] >= 36 && $data['age'] <= 18 ) ? 1 : 0,
+                                'age_55_more' => ( $data['age'] >= 55 ) ? 1 : 0,
+                                      );
+    }
+
+    $field = $fields[$data['term_vid']];
+
+    $processed[$data['nid']][$field] = debaser2_transfer_get_converted_id( $data['term_tid'], $data['term_vid'] );
+
+    $processed[$data['nid']]['terms'][] = array( 'tid' => $data['term_tid'],
+                                                 'vid' => $data['term_vid'],
+                                                'text' => $data['term_name'] );
+
+  }
+
+  return array('items' => $processed, 'quantity' => count($processed) );
+
+}
+
+
+
+/**
+ *  Transfer all actor data to new report tables
+ *
+ */
+function debaser2_transfer_insert_actor_data($data) {
+   //Clean table contents
+  db_query('TRUNCATE {debaser2_actor}');
+
+  //Insert each actor
+  foreach( $data as $nid => $actor ) {
+
+    $result  = drupal_write_record('debaser2_actor', $actor);
+    $actor_id = db_last_insert_id('debaser2_actor', 'id');
+
+    //List with old and new cases
+    $new_actors[$nid] = $actor_id;
+  }
+
+
+  return array('items' => $new_actors, 'quantity' => count( $new_actors ) );
+}
+
+
+
+/**
+ *  Get all violation data need to be transfered
+ *
+ */
+function debaser2_transfer_get_violation_data($cases) {
+  $fields = array(
+               3 => 'debaser2_location_id',
+               5 => 'debaser2_violation_international_standard_id',
+              13 => 'debaser2_violation_type_id',
+            );
+
+  $sql = "SELECT n.nid as violation_nid,
+	               n.title as violation_title,
+		             DATE_FORMAT(ctv.field_vio_date_value, '%e') as day,
+		             DATE_FORMAT(ctv.field_vio_date_value, '%m') as month,
+		             DATE_FORMAT(ctv.field_vio_date_value, '%Y') as year,
+                 cfc.field_case_nid as case_nid,
+                 oga.group_nid AS group_id,
+
+             		(SELECT count( distinct(cfvv.field_violation_victim_nid) )
+                   FROM {content_field_violation_victim} cfvv
+                  WHERE cfvv.nid = n.nid
+                    AND cfvv.vid = n.vid) as total_victims,
+
+            		(SELECT count( distinct(cfvp.field_violation_perpetrator_nid) )
+                   FROM {content_field_violation_perpetrator} cfvp
+                  WHERE cfvp.nid = n.nid
+                    AND cfvp.vid = n.vid) as total_perpetrators,
+
+	              td.tid as term_tid,
+	              td.vid as term_vid,
+		            td.name as term_name
+
+           FROM {node} n
+     INNER JOIN {content_type_violation} ctv  ON ( n.vid = ctv.vid AND n.nid = ctv.nid AND n.type = 'violation')
+     INNER JOIN {content_field_case} cfc  ON ( cfc.nid = ctv.nid AND cfc.vid = ctv.vid)
+     INNER JOIN {og_ancestry} oga ON (oga.nid = n.nid)
+     INNER JOIN {term_node} tn ON (tn.nid = n.nid)
+     INNER JOIN {term_data} td ON (td.tid = tn.tid)
+              WHERE td.vid IN( 3, 5, 13)";
+
+  $result = db_query( $sql );
+  $processed = array();
+  while ( $data = db_fetch_array( $result ) ) {
+
+    //get data relative to the violation_title
+    if( !isset( $processed[$data['violation_nid']] ) ) {
+      $case_id = $cases[ $data['case_nid'] ];
+
+      $processed[$data['violation_nid']] = array(
+                                        'day' => $data['day'],
+                                      'month' => $data['month'],
+                                       'year' => $data['year'],
+                              'total_victims' => $data['total_victims'],
+                         'total_perpetrators' => $data['total_perpetrators'],
+                            'total_witnesses' => 0,
+                                    'case_id' => $case_id,
+                                   'group_id' => $data['group_id'],
+          'debaser2_violation_case_status_id' => debaser2_transfer_case_status_id($case_id),
+                                      );
+    }
+
+    $field = $fields[$data['term_vid']];
+    $processed[$data['violation_nid']][$field] = debaser2_transfer_get_converted_id( $data['term_tid'], $data['term_vid'] );
+    $processed[$data['violation_nid']]['terms'][] = array( 'tid' => $data['term_tid'],
+                                                           'vid' => $data['term_vid'],
+                                                          'text' => $data['term_name'] );
+  }
+
+  return array('items' => $processed, 'quantity' => count($processed) );
+}
+
+
+
+/**
+ *  Transfer all violation data to new report tables
+ *
+ */
+function debaser2_transfer_insert_violation_data($data) {
+  //Clean table contents
+  db_query('TRUNCATE {debaser2_violation}');
+  db_query('TRUNCATE {debaser2_violation_date}');
+
+  //Insert each violation
+  foreach( $data as $nid => $violation ) {
+
+    $insert_violation_date = array(
+      'day'   => $violation['day'],
+      'month' => $violation['month'],
+      'year'  => $violation['year'],
+    );
+
+    //Insert into date table
+    $result = drupal_write_record('debaser2_violation_date', $insert_violation_date);
+    $date_id = db_last_insert_id('debaser2_violation_date', 'id');
+
+    //Add the date_id to the violation data to be inserted
+    $violation['debaser2_violation_date_id'] = $date_id;
+
+    //Write record and get it's Id
+    $result  = drupal_write_record('debaser2_violation', $violation);
+    $violation_id = db_last_insert_id('debaser2_violation', 'id');
+
+    //List with old and new violation ids
+    $new_violations[$nid] = $violation_id;
+  }
+
+  return array('items' => $new_violations, 'quantity' => count($new_violations) );
+}
+
+
+function debaser2_transfer_get_violation_actor_data($violations) {
+  $fields = array(
+              1 => 'debaser2_actor_type_id',
+              4 => 'debaser2_actor_ethnicity_id',
+              9 => 'debaser2_actor_political_affiliation_id',
+            );
+
+  $sql = "SELECT n.title AS violation_title,
+                 n.nid AS violation_nid,
+                 cfvv.field_violation_victim_nid AS actor_nid,
+                 'victim' AS actor_type,
+                 cta.field_actor_name_value AS actor_name,
+                 cta.field_gender_value AS actor_gender,
+                 cta.field_age_value AS actor_age,
+	               td.tid AS term_tid,
+	               td.vid AS term_vid,
+	               td.name AS term_name
+
+            FROM {node} n
+      INNER JOIN {content_field_violation_victim} cfvv ON (n.nid = cfvv.nid AND n.vid = cfvv.vid AND n.type = 'violation')
+      INNER JOIN {content_type_actor} cta ON ( cfvv.field_violation_victim_nid = cta.nid)
+      INNER JOIN {term_node} tn ON (tn.nid = cfvv.field_violation_victim_nid)
+      INNER JOIN {term_data} td ON (td.tid = tn.tid AND td.vid IN( 1, 4, 9) )
+
+          UNION
+
+          SELECT n.title AS violation_title,
+                 n.nid AS violation_nid,
+                 cfvp.field_violation_perpetrator_nid AS actor_nid,
+                 'perpetrator' AS actor_type,
+                 cta.field_actor_name_value AS actor_name,
+                 cta.field_gender_value AS actor_gender,
+                 cta.field_age_value AS actor_age,
+	               td.tid AS term_tid,
+	               td.vid AS term_vid,
+	               td.name AS term_name
+
+            FROM {node} n
+      INNER JOIN {content_field_violation_perpetrator} cfvp ON (n.nid = cfvp.nid AND n.vid = cfvp.vid AND n.type = 'violation')
+      INNER JOIN {content_type_actor} cta ON ( cfvp.field_violation_perpetrator_nid = cta.nid)
+      INNER JOIN {term_node} tn ON (tn.nid = cfvp.field_violation_perpetrator_nid)
+      INNER JOIN {term_data} td ON (td.tid = tn.tid AND td.vid IN( 1, 4, 9) )
+
+        ORDER BY violation_nid, actor_nid";
+
+
+  $result = db_query( $sql );
+  $processed = array();
+  $counter = 0;
+  while ( $data = db_fetch_array( $result ) ) {
+
+    //Add Basic information to the case
+    $nid = $data['violation_nid'];
+    $aid = $data['actor_nid'];
+
+    if( !isset( $processed[$nid][$aid] ) ) {
+      $processed[$nid][$aid] = array(   'age' => $data['actor_age'],
+                                       'name' => $data['actor_name'],
+                      'debaser2_violation_id' => (int)$violations[ $data['violation_nid'] ], //Need to get the new violation id
+                   'debaser2_actor_gender_id' => ( $data['actor_gender'] == 'male' ) ? 1 : 2,
+                                   'age_0_18' => ( $data['actor_age'] >= 0  && $data['actor_age'] <= 18 ) ? 1 : 0,
+                                  'age_19_35' => ( $data['actor_age'] >= 19 && $data['actor_age'] <= 35 ) ? 1 : 0,
+                                  'age_36_54' => ( $data['actor_age'] >= 36 && $data['actor_age'] <= 18 ) ? 1 : 0,
+                                'age_55_more' => ( $data['actor_age'] >= 55 ) ? 1 : 0,
+                                      );
+      $counter++;
+    }
+
+    $field = $fields[$data['term_vid']];
+
+    $processed[$nid][$aid][$field] = debaser2_transfer_get_converted_id( $data['term_tid'], $data['term_vid'] );
+
+    $processed[$nid][$aid]['terms'][] = array( 'tid' => $data['term_tid'],
+                                               'vid' => $data['term_vid'],
+                                              'text' => $data['term_name'] );
+
+  }
+
+  return array('items' => $processed, 'quantity' => $counter);
+
+}
+
+/**
+ *  Transfer all violation actor data to new report tables
+ *
+ */
+function debaser2_transfer_insert_violation_actor_data($data) {
+  //Clean table contents
+  db_query('TRUNCATE {debaser2_violation_actor}');
+
+  $counter = 0;
+
+  //Insert each violation
+  foreach( $data as $vid => $violation ) {
+
+    //Insert each actor in this violation
+    foreach( $violation as $aid => $actor) {
+      //dpm($actor);
+      $result   = drupal_write_record('debaser2_violation_actor', $actor);
+      $actor_id = db_last_insert_id('debaser2_violation_actor', 'id');
+
+      //Create a list of old and new actors IDs
+      //In this new structure an ator can be duplicated since it belongs to different violations
+      $new_actors[$vid][$aid] = $actor_id;
+      $counter++;
+    }
+  }
+
+  return array('items' => $new_actors, 'quantity' => $counter);
+}
+
+
+/**
+ *  Get all information about taxonomy terms
+ *  Filter by Vocabularies
+ */
+function debaser2_transfer_get_term_data() {
+  $sql = "SELECT td.tid, td.name, td.vid, th.parent
+            FROM {term_data} td
+      INNER JOIN {term_hierarchy} th on (td.tid = th.tid)
+           WHERE td.vid IN( 1, 2, 3, 4, 5, 7, 9, 13)
+             AND th.parent = 0
+        ORDER BY td.vid, td.name";
+
+  $result = db_query( $sql );
+  $processed = array();
+  while ( $data = db_fetch_array( $result ) ) {
+    $processed[] = $data;
+  }
+
+  return array( 'items' => $processed, 'quantity' => count($processed) );
+}
+
+
+
+/**
+ *  Transfer all taxonomy terms to the new auxiliar tables
+ *
+ */
+function debaser2_transfer_insert_term_data($data) {
+
+  //Clean table contents
+  db_query('TRUNCATE {debaser2_aux_terms}');
+
+  //Define Destination Tables based on Vocabulary Id
+  $destination = array( 1 => 'debaser2_actor_type',
+                        2 => 'debaser2_case_status',
+                        3 => 'debaser2_location',
+                        4 => 'debaser2_actor_ethnicity',
+                        5 => 'debaser2_violation_international_standard',
+                        7 => 'debaser2_case_intervention_reason',
+                        9 => 'debaser2_actor_political_affiliation',
+                       13 => 'debaser2_violation_type',
+                      );
+
+  //Store already truncated tables
+  $truncated = array();
+
+  //Insert each term in the right table
+  $counter = 0;
+  foreach( $data as $key => $term ) {
+
+    $table = $destination[$term['vid']];
+
+    if( !in_array( $table, $truncated ) ) {
+      array_push( $truncated, $table );
+      db_query('TRUNCATE {' . $table . '}');
+    }
+
+    $insert = array(
+      'title' => $term['name'],
+    );
+
+    //Insert new term to relative tables
+    $result  = drupal_write_record( $table, $insert );
+    $last_id = db_last_insert_id( $table , 'id' );
+
+    $insert_term = array(
+      'id'     => (int)$last_id,
+      'tid'    => $term['tid'],
+      'vid'    => $term['vid'],
+      'parent' => $term['parent'],
+    );
+
+    $new_terms[$term['tid']] = (int)$last_id;
+    $result = drupal_write_record('debaser2_aux_terms', $insert_term);
+
+  }
+
+  return array( 'items' => $new_terms, 'quantity' => count($new_terms) );
+}
+
+
+
+/**
+ *  Retrieve the new term id from aux table
+ *
+ */
+function debaser2_transfer_get_converted_id($tid, $vid) {
+  $sql    = "SELECT id FROM {debaser2_aux_terms} WHERE tid = %d AND vid = %d";
+  $result = db_query($sql, $tid, $vid);
+  $data = db_fetch_array($result);
+
+  return $data['id'];
+}
+
+
+/**
+ *  Search for a case status on the new case tables
+ *
+ */
+function debaser2_transfer_case_status_id($case_id) {
+  $sql    = "SELECT debaser2_case_status_id FROM {debaser2_case} WHERE id = %d";
+  $result = db_query($sql, $case_id);
+  $data = db_fetch_array($result);
+
+  return $data['debaser2_case_status_id'];
+}
+
+
+
+/**
+ *  Create all hierarchy for debaser2_case_status table
+ *  Need to implemented
+ */
+function debaser2_transfer_create_hierarchy($vid) {
+
+  //Select only parent items
+  $sql    = "SELECT * FROM {debaser2_aux_terms} WHERE vid = %d AND parent = 0";
+  $result = db_query($sql, $vid);
+
+  $structure = array();
+
+  while ( $data = db_fetch_array($result) ) {
+
+    $sql     = "SELECT * FROM {debaser2_aux_terms} WHERE parent = %d";
+    $result2 = db_query($sql, $data['tid']);
+
+    while ( $data2 = db_fetch_array($result2) ) {
+      $structure[$data['tid']][$data2['tid']] = $data2;
+    }
+  }
+
+  dpm($structure);
+}
+
+
+
+/*
+ * Execute all tasks need to transfer data to new report tables
+ */
+function debaser2_transfer_execute_cron() {
+
+  try {
+
+    //Execute Term Transfer
+    $term_data   = debaser2_transfer_get_term_data();
+    $term_result = debaser2_transfer_insert_term_data($term_data['items']);
+
+    //Execute Case Transfer
+    $case_data   = debaser2_transfer_get_case_data();
+    $case_result = debaser2_transfer_insert_case_data($case_data['items']);
+
+    //Execute Actors Transfer - Needs the case result to use proper case ids
+    $actor_data   = debaser2_transfer_get_actor_data($case_result['items']);
+    $actor_result = debaser2_transfer_insert_actor_data($actor_data['items']);
+
+    //Execute violation transfer - Needs the case result to use proper case ids
+    $violation_data = debaser2_transfer_get_violation_data($case_result['items']);
+    $violation_result = debaser2_transfer_insert_violation_data($violation_data['items']);
+
+    //Execute violation Actor transfer - Needs the violation result to use proper violation ids
+    $violation_actor_data = debaser2_transfer_get_violation_actor_data($violation_result['items']);
+    $violation_actor_result = debaser2_transfer_insert_violation_actor_data($violation_actor_data['items']);
+
+    $message = 'Terms Transfered: ' . $term_result['quantity'];
+    $message .= '<br>Cases Transfered: ' . $case_result['quantity'];
+    $message .= '<br>Case Actors Transfered: ' . $actor_result['quantity'];
+    $message .= '<br>Violations Transfered: ' . $violation_result['quantity'];
+    $message .= '<br>Violation Actors Transfered: ' . $violation_actor_result['quantity'];
+
+  } catch (Exception $e) {
+
+  }
+
+
+
+
+
+  return($message);
+}
+
+
+/*
+ * Implements Hook Cron, will be called on every cron execution
+ */
+function debaser2_transfer_cron() {
+  $message = debaser2_transfer_execute_cron();
+  watchdog('Cron', $message, array(), WATCHDOG_WARNING);
+}
+

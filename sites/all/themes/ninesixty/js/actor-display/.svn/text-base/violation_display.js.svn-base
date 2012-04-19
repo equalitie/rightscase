@@ -1,0 +1,17 @@
+/**
+ * @author cormac1
+ * views-cycle-case_actors-page_2
+ */
+$(document).ready(function(){
+	$('#views-cycle-case_violations-page_1-nav').addClass('grid-3');
+	$('#views-cycle-case_violations-page_1').addClass('grid-13');
+	$("#views-cycle-case_violations-page_1-nav").wrap("<div class=\"sideTab vio-tab grid-3 alpha\"></div>");
+	$("#views-cycle-case_violations-page_1-nav").after('<div class="sideTab-bottom"></div>');
+	
+	$('.vio-tab').prepend('<div class="sideTabHeader vio-header"><h6>Violations</h6></div>');
+	$(".activeSlide").parent().addClass('activeSlide');
+	$("li").click(function(){
+		$(this).addClass('activeSlide');
+		$(this).siblings().removeClass('activeSlide');
+	});
+});

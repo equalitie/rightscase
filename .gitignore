@@ -1,0 +1,5 @@
+sites/default/files/*
+.Trash-1000/*
+sites/default/settings.php
+sites/default/settings.php.bak
+sites/default/files/js/gmap_markers.js

@@ -1,0 +1,64 @@
+// $Id: CHANGELOG.txt,v 1.1.2.27 2009/09/20 18:15:12 markuspetrux Exp $
+
+CCK 6.x-1.2
+===========
+
+This release requires running update.php.
+
+Features:
+- #556422 Create translations folder, translation template and es.po (translation to Spanish, not completed).
+- Move hook_theme() and hook_menu() to external include keeping only proxy methods in main module script to save a bit more memory during normal site operation.
+- #514956 Add support for Internationalization module and an option to "Translate and reference". Requires update.php.
+- #557070 Deprecate use of t() for field labels as soon as i18ncck module is committed to i18n project.
+- #580832 Display a warning if i18n module is not enabled, or not configured for the "Translate and reference" feature to work properly.
+- Changed child window size to be 30 pixels less than current browser window size.
+- #582086 Pass extra query string arguments in parent window to child windows.
+- Make javaScript compatible with other libraries than jQuery. See:
+  http://drupal.org/update/modules/6/7#javascript_compatibility
+
+Bugfixes:
+- Rename CSS files to make sure no namespace conflicts occur when trying to overridde them in theme .info files.
+
+
+CCK 6.x-1.1
+===========
+
+Features:
+- #556024 Add support for Automatic Node Titles.
+
+Bugfixes:
+- #536514 Search and reference multiple items error after submit.
+- #548602 Buttons enabled for node reference extras disappear when validation errors occur in the form.
+- #551100 nodereference buttons disappear on add another item (caused by #548602).
+
+
+CCK 6.x-1.0
+===========
+
+Bugfixes:
+- Remove default value for settings column in schema definition. This change does not affect the table already created.
+- Fix CSS in back references settings to hide the link to fields when a field is moved off the fields region.
+
+
+CCK 6.x-1.0-beta3
+=================
+
+Features:
+- Added a new formatter for back references fields to display the count of back references.
+
+
+CCK 6.x-1.0-beta2
+=================
+
+Bugfixes:
+- #511968: Can't remove "title" label.
+- Enable search/create and reference features when creating nodes.
+- Use separate columns for hidden nid/title fields used for search and reference views.
+- Include .inc file from backref field formatted, required to support content_view_field().
+- Implement hook_field('load') so that we can support content_view_field() used for Panels integration in CCK.
+
+
+CCK 6.x-1.0-beta1
+=================
+
+- First official release of the Node Relationships module.

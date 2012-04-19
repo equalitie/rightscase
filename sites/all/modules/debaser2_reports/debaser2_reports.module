@@ -1,0 +1,52 @@
+<?php
+
+/**
+ *
+ *
+ */
+function debaser2_reports_perm() {
+    return array('debaser2 reports admin');
+    
+}
+
+/**
+ *
+ *
+ */
+function debaser2_reports_menu(){
+  $items['stats/victim_violation_statistics'] = array(
+    'title' => 'VictimVs Violation Graphs',
+    'page callback' => 'debaser2_reports_victims_violations_page',
+    'access arguments' => array('access stats content'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $items['stats/individual_statistics_new'] = array(
+    'title' => 'Graphs',
+    'page callback' => 'debaser2_reports_graph_selection',
+    'access arguments' => array('access stats content'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 0,
+  );
+  return $items;
+}
+
+/**
+ *
+ *
+ */
+function debaser2_reports_graph_selection(){
+  $path = drupal_get_path( 'module', 'debaser2_reports' );
+  require( $path . '/helper/debaser2_reports.report.inc' );
+  drupal_add_js( $path . '/js/report_form.js' );
+	return drupal_get_form('debaser2_reports_statistics_form');
+
+}
+
+
+function debaser2_reports_victims_violations_page(){
+  $path = drupal_get_path('module', 'debaser2_reports');
+  drupal_add_js( $path . '/js/' . 'debaser2_correlative_form.js');
+  require( $path . '/helper/debaser2_reports.report.inc' );
+  return drupal_get_form('debaser2_reports_victims_violations_filter_form');
+}

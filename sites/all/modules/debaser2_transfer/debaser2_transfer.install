@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function debaser2_transfer_install() {
+  drupal_install_schema('debaser2_transfer');
+}
+
+/**
+ * Remove variables on uninstall.
+ */
+function debaser2_transfer_uninstall() {
+  drupal_uninstall_schema('debaser2_transfer');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function debaser2_transfer_schema() {
+  $schema = array();
+  $schema['debaser2_aux_terms'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+
+      'tid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+
+      'vid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+
+      'parent' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+
+    ),
+
+    'primary key' => array('id', 'vid'),
+  );
+
+  return $schema;
+}
+

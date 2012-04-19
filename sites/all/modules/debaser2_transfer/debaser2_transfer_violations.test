@@ -1,0 +1,169 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Luis Fernando do Nascimento
+Creation Date : 15/11/2011
+Description   : Test case to compare data transfered between drupal tables and report new ones
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class Debaser_Transfer_Test_Violations extends DrupalWebTestCase{
+
+  protected $privileged_user;
+
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Data Transfer - Violations'),
+      'description' => t('Compare Violations between Drupal and New Report Tables.'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports', 'debaser2_transfer'
+    );
+
+    //Create some Drupal Tables (Nodes, Terms...) with data
+    $this->_insert_data();
+
+    //Create Transfer Aux Table and Populate it
+    $data   = debaser2_transfer_get_term_data();
+    $result = debaser2_transfer_insert_term_data($data['items']);
+
+    //Create and log in our privileged user.
+    //$this->privileged_user = $this->drupalCreateUser( array(
+    //  'debaser2 transfer admin page',
+    //));
+    //$this->drupalLogin($this->privileged_user);
+
+  }
+
+  //Get Data from sql file and insert on test tables
+  public function _insert_data(){
+    $path = drupal_get_path( 'module', 'debaser2_transfer' );
+
+    $handle  = @fopen( $path . "/sql/debaser2_transfer.sql", "r" );
+    $queries = array();
+
+    if ($handle) {
+      while ( ( $buffer = fgets( $handle, 4096 ) ) !== false ) {
+        if( strpos( $buffer, 'INSERT INTO' ) !== false || strpos( $buffer, 'CREATE TABLE' ) !== false ) {
+          $queries[] = $buffer;
+          db_query( $buffer );
+        }
+      }
+      fclose( $handle );
+    }
+  }
+
+
+  /**
+   *  Execute tests to verify Cases created
+   *
+   */
+  public function test_violation_data() {
+    //Execute Case Transfer
+    $case_data   = debaser2_transfer_get_case_data();
+    $case_result = debaser2_transfer_insert_case_data($case_data['items']);
+
+    //Execute Actors Transfer - Needs the case result to use proper case ids
+    $actor_data   = debaser2_transfer_get_actor_data($case_result['items']);
+    $actor_result = debaser2_transfer_insert_actor_data($actor_data['items']);
+
+    //Execute violation transfer - Needs the case result to use proper case ids
+    $violation_data = debaser2_transfer_get_violation_data($case_result['items']);
+    $violation_result = debaser2_transfer_insert_violation_data($violation_data['items']);
+
+    $destination = array( 1 => 'debaser2_actor_type',
+                          2 => 'debaser2_case_status',
+                          3 => 'debaser2_location',
+                          4 => 'debaser2_actor_ethnicity',
+                          5 => 'debaser2_violation_international_standard',
+                          7 => 'debaser2_case_intervention_reason',
+                          9 => 'debaser2_actor_political_affiliation',
+                         13 => 'debaser2_violation_type',
+                        );
+
+    $fields = array(
+                2 => 'debaser2_case_status_id',
+                3 => 'debaser2_location_id',
+                7 => 'debaser2_case_intervention_reason_id',
+              );
+
+    //$this->fail( '<pre>' . print_r($data, true) . '</pre>');
+
+
+    //foreach($violation_data['items'] as $violation) {
+      /*//Search for this case in the new tables
+      $query = "SELECT *
+                  FROM {debaser2_case}
+                 WHERE title = '%s'
+                   AND total_victims = %d
+                   AND total_perpetrators = %d
+                   AND total_witnesses = %d
+                   AND total_violations = %d
+                   AND group_id = %d";
+      $case_result = db_query( $query, $case['title'], $case['total_victims'], $case['total_perpetrators'], $case['total_witnesses'], $case['total_violations'], $case['group_id'] );
+      $valid = ($case_result->num_rows > 0);
+
+      $this->assertTrue($valid, 'Case <b>' . $case['title'] . '</b> successfuly Created' );
+
+      //Convert Case data retrived from new table to array
+      $info = db_fetch_array($case_result);
+
+      //Search for relative date in new table
+      $query = "SELECT *
+                  FROM {debaser2_case_date}
+                 WHERE id = %d
+                   AND day = %d
+                   AND month = %d
+                   AND year = %d";
+
+      $date_result = db_query( $query, $info['debaser2_case_date_id'], $case['day'], $case['month'], $case['year'] );
+      $valid = ($date_result->num_rows > 0);
+
+      $this->assertTrue($valid, t('Case Date successfuly Created') );
+
+      //Verify Terms Related
+      foreach($case['terms'] as $term) {
+        $table = $destination[$term['vid']];
+        $field = $fields[$term['vid']];
+
+        $query = "SELECT t.title
+                    FROM {debaser2_case} db2c
+              INNER JOIN {debaser2_aux_terms} db2at ON (db2at.id = db2c." . $field . " )
+              INNER JOIN {" . $table . "} t  ON  ( t.id = db2at.id AND db2at.vid = " . $term['vid'] . " )
+                   WHERE db2at.tid = %d
+                     AND db2at.vid = %d";
+
+        $term_result = db_query( $query, $term['tid'], $term['vid'] );
+
+        $valid = ($term_result->num_rows > 0);
+        $term_data = db_fetch_array( $term_result );
+
+        //Verify if the term was found
+        $this->assertTrue($valid, 'Related Term <b>' . $term['text'] . '</b> found on <b>' . $table . '</b>');
+
+        //If term was found, try to compare to it's original
+        if($valid) {
+          $this->assertEqual($term_data['title'], $term['text'], 'Term found is iqual to his original. <br><b>New:</b> ' . $term_data['title'] . ' <br><b>Original:</b> ' . $term['text'] );
+        }
+
+        //$this->fail( '<pre>' . print_r($term, true) . '</pre>');
+
+      }*/
+    //}
+
+
+  }
+
+}
+

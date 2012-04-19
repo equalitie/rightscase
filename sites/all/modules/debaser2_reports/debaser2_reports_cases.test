@@ -1,0 +1,1138 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Davi Tapajos
+Creation Date : 14/11/2011
+Description   : Implements tests to ensure that queries related to cases will be correct.
+site.
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class DebaserReportsCasesTestCase extends DrupalWebTestCase{
+
+  /**
+   *
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Reports - Cases'),
+      'description' => t('Test the case statistics'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports'
+    );
+    
+    $path = drupal_get_path( 'module', 'debaser2_reports' );
+    include_once( $path . '/helper/debaser2_reports.report.inc' );
+    include_once( $path . '/helper/debaser2_reports_func_matrix.report.inc' );
+    include_once( $path . '/queries/debaser2_reports_cases_queries.inc' );
+  }
+
+  /**
+   *
+   */
+  public function test_tables_creation(){
+    $tables = $this->_get_tables_list();
+
+    foreach($tables as $table_name => $fields) {
+      $sql = 'SELECT ';
+      $i = 1;
+      $count = count($fields);
+      foreach($fields as $field) {
+        $sql .= $field;
+        $sql .= $count == $i ? ' ' : ', ';
+        $i++;
+      }
+      $sql .= ' FROM {%s}';
+      $result = db_query($sql, $table_name);
+      $this->assertTrue($result, t("All ok with table !table", array("!table" => $table_name) ) );
+    }
+
+  }
+
+
+/********************************************************************************************
+
+                        TEST CASE STATUS
+
+********************************************************************************************/
+
+/**
+ * Case status without group, flag location, without location
+ */
+public function test_case_by_status_without_group_without_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'location', 'query');
+  $results = $query_function();
+
+  foreach($results as $status => $locations){
+    foreach($locations as $location => $count){
+      switch ($status) {
+        case 'case_status_1':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 4; break;
+            case 'location_3': $expected = 5; break;
+          } // case_status_1
+          break;
+        case 'case_status_2':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 1; break;
+          } // case_status_2
+          break;
+        case 'case_status_3':
+          switch($location) {
+            case 'location_1': $expected = 3; break;
+            case 'location_2': $expected = 2; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $status . ' in ' . $location;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Case status without group, flag location, with location
+ */
+public function test_case_by_status_without_group_with_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'location', 'query');
+  $results = $query_function(NULL, 1);
+  $location = 'location_1';
+
+  foreach($results as $status => $locations){
+    switch ($status) {
+      case 'case_status_1': $expected = 1; break;
+      case 'case_status_2': $expected = 2; break;
+      case 'case_status_3': $expected = 3; break;
+    }
+    $message = $status . ' in ' . $location;
+    $count = $results[$status][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+
+}
+
+/**
+ * Case status with group, flag location, without location
+ */
+public function test_case_by_status_with_group_without_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'location', 'query');
+
+  $group = 1099;
+  $results = $query_function($group);
+
+  foreach($results as $status => $locations){
+    foreach($locations as $location => $count){
+      switch ($status) {
+        case 'case_status_1':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 3; break;
+            case 'location_3': $expected = 3; break;
+          } // case_status_1
+          break;
+        case 'case_status_2':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 1; break;
+          } // case_status_2
+          break;
+        case 'case_status_3':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $status . ' in ' . $location . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Case status with group, flag location, with location
+ */
+public function test_case_by_status_with_group_with_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'location', 'query');
+  $results = $query_function(1100, 3);
+  $location = 'location_3';
+
+  foreach($results as $status => $locations){
+    switch ($status) {
+      case 'case_status_1': $expected = 2; break;
+      case 'case_status_2': $expected = 0; break;
+      case 'case_status_3': $expected = 2; break;
+    }
+    $message = $status . ' in ' . $location;
+    $count = $results[$status][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case status without group, flag status, without status
+ */
+public function test_case_by_status_without_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'status', 'query');
+  $results = $query_function();
+
+  foreach($results as $status => $count){
+    switch ($status) {
+      case 'case_status_1': $expected = 10; break;
+      case 'case_status_2': $expected = 3; break;
+      case 'case_status_3': $expected = 7; break;
+    }
+    $message = $status;
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+
+}
+
+/**
+ * Case status without group, flag status, with status
+ */
+public function test_case_by_status_without_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'status', 'query');
+  $results = $query_function(NULL, 3);
+  $status = 'case_status_3';
+
+  $count = $results[$status];
+  $expected = 7;
+  $message = $status;
+  $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+}
+
+/**
+ * Case status with group, flag status, without status
+ */
+public function test_case_by_status_with_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'status', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  foreach($results as $status => $count){
+    switch ($status) {
+      case 'case_status_1': $expected = 4; break;
+      case 'case_status_2': $expected = 1; break;
+      case 'case_status_3': $expected = 5; break;
+    }
+    $message = $status . ' in group ' . $group;
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case status with group, flag status, with status
+ */
+public function test_case_by_status_with_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(1, 'status', 'query');
+
+  $group = 1099;
+  $results = $query_function($group, 1);
+  $status = 'case_status_1';
+
+  $count = $results[$status];
+  $expected = 6;
+  $message = $status . ' in the group ' . $group;
+  $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+}
+
+/********************************************************************************************
+
+                        TEST CASE REASON OF INTERVENTION
+
+********************************************************************************************/
+
+/**
+ * Case reason of intervention without group, flag location, without location
+ */
+public function test_case_by_reason_without_group_without_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'location', 'query');
+  $results = $query_function();
+
+  foreach($results as $intervention_reason => $locations){
+    foreach($locations as $location => $count){
+      switch ($intervention_reason) {
+        case 'intervention_reason_1':
+          switch($location) {
+            case 'location_1': $expected = 3; break;
+            case 'location_2': $expected = 2; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_1
+          break;
+        case 'intervention_reason_2':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 2; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_2
+          break;
+        case 'intervention_reason_3':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 2; break;
+            case 'location_3': $expected = 4; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $intervention_reason . ' in ' . $location;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ *  Case reason of intervention without group, flag location, with location
+ */
+public function test_case_by_reason_without_group_with_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'location', 'query');
+  $results = $query_function(NULL, 1);
+  $location = 'location_1';
+
+  foreach($results as $intervention_reason => $locations){
+    switch ($intervention_reason) {
+      case 'intervention_reason_1': $expected = 3; break;
+      case 'intervention_reason_2': $expected = 1; break;
+      case 'intervention_reason_3': $expected = 2; break;
+    }
+    $message = $intervention_reason . ' in ' . $location;
+    $count = $results[$intervention_reason][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case reason of intervention with group, flag location, without location
+ */
+public function test_case_by_reason_with_group_without_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'location', 'query');
+
+  $group = 1099;
+  $results = $query_function($group);
+
+  foreach($results as $intervention_reason => $locations){
+    foreach($locations as $location => $count){
+      switch ($intervention_reason) {
+        case 'intervention_reason_1':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_1
+          break;
+        case 'intervention_reason_2':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 2; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_2
+          break;
+        case 'intervention_reason_3':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $intervention_reason . ' in ' . $location . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Case reason of intervention with group, flag location, with location
+ */
+public function test_case_by_reason_with_group_with_location () {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'location', 'query');
+
+  $group = 1100;
+  $results = $query_function($group, 3);
+  $location = 'location_3';
+
+  foreach($results as $intervention_reason => $locations){
+    switch ($intervention_reason) {
+      case 'intervention_reason_1': $expected = 0; break;
+      case 'intervention_reason_2': $expected = 2; break;
+      case 'intervention_reason_3': $expected = 2; break;
+    }
+    $message = $intervention_reason . ' in ' . $location . ' in the group ' . $group;
+    $count = $results[$intervention_reason][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case reason of intervention without group, flag status, without status
+ */
+public function test_case_by_reason_without_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'status', 'query');
+  $results = $query_function();
+
+
+      
+  foreach($results as $intervention_reason => $statuses){
+    foreach($statuses as $status => $count){
+      // switch ($intervention_reason) {
+      //   case 'intervention_reason_1': $expected = 7; break;
+      //   case 'intervention_reason_2': $expected = 5; break;
+      //   case 'intervention_reason_3': $expected = 8; break;
+      // }
+      switch ($intervention_reason) {
+        case 'intervention_reason_1':
+          switch($status) {
+            case 'case_status_1': $expected = 3; break;
+            case 'case_status_2': $expected = 3; break;
+            case 'case_status_3': $expected = 1; break;
+          } // intervention_reason_1
+          break;
+        case 'intervention_reason_2':
+          switch($status) {
+            case 'case_status_1': $expected = 2; break;
+            case 'case_status_2': $expected = 0; break;
+            case 'case_status_3': $expected = 3; break;
+          } // intervention_reason_2
+          break;
+        case 'intervention_reason_3':
+          switch($status) {
+            case 'case_status_1': $expected = 5; break;
+            case 'case_status_2': $expected = 0; break;
+            case 'case_status_3': $expected = 3; break;
+          } // intervention_reason_3
+          break;
+      } // switch international reason
+    }
+  
+    $message = $intervention_reason . ' in ' . $status;
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case reason of intervention without group, flag status, with status
+ */
+public function test_case_by_reason_without_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'status', 'query');
+  $results = $query_function(NULL, 3);
+  $selected_ir = 'intervention_reason_3';
+
+  foreach($results as $intervention_reason => $subs){
+    foreach($subs as $status => $count){
+      switch ($status) {
+        case 'case_status_1': $expected = 5; break;
+        case 'case_status_2': $expected = 0; break;
+        case 'case_status_3': $expected = 3; break;
+      }
+      $message = $intervention_reason . ' with status ' . $status;
+      $message_ir = 'searched for ' . $selected_ir;
+      $this->assertEqual($intervention_reason, $selected_ir, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $selected_ir, '!count' => $intervention_reason) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Case reason of intervention with group, flag status, without status
+ */
+public function test_case_by_reason_with_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'status', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  foreach($results as $intervention_reason => $statuses){
+    foreach($statuses as $status => $count){
+      // switch ($intervention_reason) {
+      //   case 'intervention_reason_1': $expected = 2; break;
+      //   case 'intervention_reason_2': $expected = 3; break;
+      //   case 'intervention_reason_3': $expected = 5; break;
+      // }
+      switch ($intervention_reason) {
+        case 'intervention_reason_1':
+          switch($status) {
+            case 'case_status_1': $expected = 1; break;
+            case 'case_status_2': $expected = 1; break;
+            case 'case_status_3': $expected = 0; break;
+          } // intervention_reason_1
+          break;
+        case 'intervention_reason_2':
+          switch($status) {
+            case 'case_status_1': $expected = 1; break;
+            case 'case_status_2': $expected = 0; break;
+            case 'case_status_3': $expected = 2; break;
+          } // intervention_reason_2
+          break;
+        case 'intervention_reason_3':
+          switch($status) {
+            case 'case_status_1': $expected = 2; break;
+            case 'case_status_2': $expected = 0; break;
+            case 'case_status_3': $expected = 3; break;
+          } // intervention_reason_3
+          break;
+      } // switch international reason
+    }
+    $message = $intervention_reason . ' in group ' . $group;
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Case reason of intervention with group, flag status, with status
+ */
+public function test_case_by_reason_with_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(2, 'status', 'query');
+
+  $group = 1099;
+  $results = $query_function($group, 3);
+  $selected_ir = 'intervention_reason_3';
+
+  foreach($results as $intervention_reason => $subs){
+    foreach($subs as $status => $count){
+      switch ($status) {
+        case 'case_status_1': $expected = 3; break;
+        case 'case_status_2': $expected = 0; break;
+        case 'case_status_3': $expected = 0; break;
+      }
+      $message = $intervention_reason . ' with status ' . $status . ' in the group ' . $group;
+      $message_ir = 'searched for ' . $selected_ir;
+      $this->assertEqual($intervention_reason, $selected_ir, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $selected_ir, '!count' => $intervention_reason) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/********************************************************************************************
+
+                        TEST CASE DATE OF INTERVENTION
+
+********************************************************************************************/
+
+/**
+ * Case date of intervention without group, flag location, without location
+ */
+public function test_case_by_date_without_group_without_location () {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'location', 'query');
+  $results = $query_function();
+
+  $known_dates = array(
+    '12/2010' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '1/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '3/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '5/2011' => array(
+      'location_1' => 1,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '6/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+    '10/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+    '11/2011' => array(
+      'location_1' => 0,
+      'location_2' => 0,
+      'location_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $locations){
+    foreach($locations as $location => $count){
+      $expected = $known_dates[$date][$location];
+      $message = $date . ' in ' . $location;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+
+}
+
+/**
+ * Case date of intervention without group, flag location, with location
+ */
+public function test_case_by_date_without_group_with_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'location', 'query');
+
+  $results = $query_function(NULL, 2);
+  $location_searched = 'location_2';
+
+  $known_dates = array(
+    '12/2010' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '1/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '3/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '5/2011' => array(
+      'location_1' => 1,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '6/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+    '10/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+    '11/2011' => array(
+      'location_1' => 0,
+      'location_2' => 0,
+      'location_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $locations){
+    foreach($locations as $location => $count){
+      $expected = $known_dates[$date][$location];
+      $message = $date . ' in ' . $location_searched;
+      $this->assertEqual($location, $location_searched, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $location_searched, '!count' => $location) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Case date of intervention with group, flag location, without location
+ */
+public function test_case_by_date_with_group_without_location() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'location', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  $known_dates = array(
+    '12/2010' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '3/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '6/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+    '11/2011' => array(
+      'location_1' => 0,
+      'location_2' => 0,
+      'location_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $locations){
+    foreach($locations as $location => $count){
+      $expected = $known_dates[$date][$location];
+      $message = $date . ' in ' . $location . ' in group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Case date of intervention with group, flag location, with location
+ */
+public function test_case_by_date_with_group_with_location () {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'location', 'query');
+
+  $group = 1099;
+  $results = $query_function($group, 1);
+  $location_searched = 'location_1';
+
+  $known_dates = array(
+    '12/2010' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '1/2011' => array(
+      'location_1' => 1,
+      'location_2' => 0,
+      'location_3' => 0,
+    ),
+    '5/2011' => array(
+      'location_1' => 1,
+      'location_2' => 1,
+      'location_3' => 1,
+    ),
+    '10/2011' => array(
+      'location_1' => 0,
+      'location_2' => 1,
+      'location_3' => 0,
+    ),
+  );
+
+  foreach($results as $date => $locations){
+    foreach($locations as $location => $count){
+      $expected = $known_dates[$date][$location];
+      $message = $date . ' in ' . $location_searched . ' in ' . $group;
+      $this->assertEqual($location, $location_searched, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $location_searched, '!count' => $location) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Case date of intervention without group, flag status, without status
+ */
+public function test_case_by_date_without_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'status', 'query');
+  $results = $query_function();
+
+  $known_dates = array(
+    '12/2010' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '1/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '3/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '5/2011' => array(
+      'case_status_1' => 2,
+      'case_status_2' => 1,
+      'case_status_3' => 0,
+    ),
+    '6/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '10/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '11/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $statuses){
+    foreach($statuses as $status => $count){
+      $expected = $known_dates[$date][$status];
+      $message = $date . ' in ' . $status;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Case date of intervention without group, flag status, with status
+ */
+public function test_case_by_date_without_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'status', 'query');
+
+  $results = $query_function(NULL, 1);
+  $status_searched = 'case_status_1';
+
+  $known_dates = array(
+    '12/2010' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '1/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '3/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '5/2011' => array(
+      'case_status_1' => 2,
+      'case_status_2' => 1,
+      'case_status_3' => 0,
+    ),
+    '6/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '10/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '11/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $statuses){
+    foreach($statuses as $status => $count){
+      $expected = $known_dates[$date][$status];
+      $message = $date . ' in ' . $status;
+      $this->assertEqual($status, $status_searched, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $status_searched, '!count' => $status) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Case date of intervention with group, flag status, without status
+ */
+public function test_case_by_date_with_group_without_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'status', 'query');
+
+  $group = 1099;
+  $results = $query_function($group);
+
+  $known_dates = array(
+    '12/2010' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '1/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '5/2011' => array(
+      'case_status_1' => 2,
+      'case_status_2' => 1,
+      'case_status_3' => 0,
+    ),
+    '10/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+  );
+
+  foreach($results as $date => $statuses){
+    foreach($statuses as $status => $count){
+      $expected = $known_dates[$date][$status];
+      $message = $date . ' in ' . $status . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Case date of intervention with group, flag status, with status
+ */
+public function test_case_by_date_with_group_with_status() {
+  $this->_insert_cases();
+  $query_function = debaser2_reports_case_functions(3, 'status', 'query');
+
+  $group = 1100;
+  $results = $query_function($group, 3);
+  $status_searched = 'case_status_3';
+
+  $known_dates = array(
+    '12/2010' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '3/2011' => array(
+      'case_status_1' => 1,
+      'case_status_2' => 0,
+      'case_status_3' => 0,
+    ),
+    '6/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+    '11/2011' => array(
+      'case_status_1' => 0,
+      'case_status_2' => 0,
+      'case_status_3' => 1,
+    ),
+  );
+
+  foreach($results as $date => $statuses){
+    foreach($statuses as $status => $count){
+      $expected = $known_dates[$date][$status];
+      $message = $date . ' in ' . $status . ' in the group ' . $group;
+      $this->assertEqual($status, $status_searched, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $status_searched, '!count' => $status) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+
+/********************************************************************************************
+
+                        FUNCTIONS TO HELP TESTS
+
+********************************************************************************************/
+
+  /**
+   *
+   */
+  private function _insert_cases() {
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_1');"); // 1
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_2');"); // 2
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_case_intervention_reason} VALUES (NULL, 'intervention_reason_1');"); // 1
+    db_query("INSERT INTO {debaser2_case_intervention_reason} VALUES (NULL, 'intervention_reason_2');"); // 2
+    db_query("INSERT INTO {debaser2_case_intervention_reason} VALUES (NULL, 'intervention_reason_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_1');"); // 1
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_2');"); // 2
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_3');"); // 3
+
+    // day, month, year
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 20, 03, 2009);"); // 1
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 21, 04, 2009);"); // 2
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 12, 05, 2010);"); // 3
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 19, 09, 2010);"); // 4
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 22, 12, 2010);"); // 5
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 04, 01, 2011);"); // 6
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 03, 05, 2011);"); // 7
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 04, 05, 2011);"); // 8
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 30, 05, 2011);"); // 9
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 15, 10, 2011);"); // 10
+
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 22, 03, 2008);"); // 11
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 21, 04, 2008);"); // 12
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 13, 05, 2009);"); // 13
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 19, 03, 2009);"); // 14
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 21, 02, 2010);"); // 15
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 17, 11, 2010);"); // 16
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 13, 12, 2010);"); // 17
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 14, 06, 2011);"); // 18
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 31, 03, 2011);"); // 19
+    db_query("INSERT INTO {debaser2_case_date} VALUES (NULL, 17, 11, 2011);"); // 20
+
+
+        
+    // 'id', 'title', 'total_victims', 'total_perpetrators', 'total_witnesses', 'total_violations', 'group_id', 'debaser2_case_status_id', 'debaser2_location_id', 'debaser2_case_date_id', 'debaser2_case_intervention_reason_id',
+    //                                                                               S         R
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_1', 3, 2, 2, 2, 1099, 1, 3,  1, 1);"); // 1  S1 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_2', 3, 2, 2, 3, 1099, 1, 2,  2, 3);"); // 2  S1 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_3', 3, 2, 2, 4, 1099, 2, 3,  3, 1);"); // 3  S2 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_4', 3, 2, 2, 2, 1099, 1, 3,  4, 3);"); // 4  S1 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_5', 3, 2, 2, 3, 1099, 3, 2,  5, 2);"); // 5  S3 IR2
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_6', 3, 2, 2, 4, 1099, 3, 1,  6, 1);"); // 6  S3 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_7', 3, 2, 2, 2, 1099, 1, 2,  7, 2);"); // 7  S1 IR2
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_8', 3, 2, 2, 3, 1099, 2, 1,  8, 1);"); // 8  S2 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL,  'case_9', 3, 2, 2, 4, 1099, 1, 3,  9, 3);"); // 9  S1 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_10', 3, 2, 2, 2, 1099, 1, 2, 10, 1);"); // 10 S1 IR1
+
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_11', 2, 1, 1, 2, 1100, 3, 1, 11, 3);"); // 11 S3 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_12', 2, 1, 1, 3, 1100, 3, 3, 12, 2);"); // 12 S3 IR2
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_13', 2, 1, 1, 4, 1100, 2, 1, 13, 1);"); // 13 S2 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_14', 2, 1, 1, 2, 1100, 3, 1, 14, 2);"); // 14 S3 IR2
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_15', 2, 1, 1, 3, 1100, 1, 3, 15, 3);"); // 15 S1 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_16', 2, 1, 1, 4, 1100, 1, 2, 16, 1);"); // 16 S1 IR1
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_17', 2, 1, 1, 2, 1100, 1, 3, 17, 2);"); // 17 S1 IR2
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_18', 2, 1, 1, 3, 1100, 3, 2, 18, 3);"); // 18 S3 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_19', 2, 1, 1, 4, 1100, 1, 1, 19, 3);"); // 19 S1 IR3
+    db_query("INSERT INTO {debaser2_case} VALUES (NULL, 'case_20', 2, 1, 1, 2, 1100, 3, 3, 20, 3);"); // 20 S3 IR3
+
+  }
+
+  /**
+   *
+   */
+  private function _get_tables_list() {
+    $tables = array(
+      'debaser2_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'case_id',
+        'group_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_actor_ethnicity' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_gender' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_political_affiliation' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_type' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case' => array (
+        'id',
+        'title',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'total_violations',
+        'group_id',
+        'debaser2_case_status_id',
+        'debaser2_location_id',
+        'debaser2_case_date_id',
+        'debaser2_case_intervention_reason_id',
+      ),
+      'debaser2_case_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_case_intervention_reason' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case_status' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_location' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation' => array (
+        'id',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'case_id',
+        'group_id',
+        'debaser2_location_id',
+        'debaser2_violation_date_id',
+        'debaser2_violation_case_status_id',
+        'debaser2_violation_type_id',
+        'debaser2_violation_international_standard_id',
+      ),
+      'debaser2_violation_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'debaser2_violation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_violation_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_violation_international_standard' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation_type' => array (
+        'id',
+        'title',
+      ),
+    );
+
+    return $tables;
+  }
+  
+}
+

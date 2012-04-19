@@ -1,0 +1,7 @@
+name = Debaser2 FileField formatter
+description = Special filefield formatter 
+package = Debaser2
+core = 6.x
+version = "6.x-1.x"
+dependencies[] = views
+dependencies[] = filefield

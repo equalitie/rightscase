@@ -1,0 +1,155 @@
+<?php
+/*****************************************************************************************************************
+
+Created By    : Cormac McGuire - cromac
+Created Date  : 22/04/11
+Description   : Create some pages to allow for easy navigation, especially for finding og add user functionality 
+                 
+                
+Updated By    : Cormac McGuire
+Updated Date  : 19/09/2011
+Description   : Added the dashboard page to allow easy viewning of group case totals
+                
+Updated By    :
+Updated Date  :
+Description   :
+*****************************************************************************************************************/
+
+
+
+/*****************************************************************************************************************
+
+  CORE HOOKS
+
+*****************************************************************************************************************/
+/* 
+Implementation of hook_menu
+*/
+function debaser2_interface_menu() {
+  $items = array();
+    
+  $items['stats/rightscase_dashboard'] = array(
+    'title'             => 'Rights Case Dashboard',
+    'page callback'     => 'debaser2_interface_ddrd_dashboard',
+    'description'       => 'Show group totals and recent activity',
+    'access arguments'  => array( 'administer debaser' ),
+    'weight'            => 10,
+    'type'              => MENU_LOCAL_TASK,
+  
+  );
+  $items['admin/settings/debaser2_interface_dashboard'] = array(
+    'title'            => 'rightscase admin',
+    'page callback'    => 'debaser2_interface_dashboard_page',
+    'description'      => 'A page to link to the proup add user pages',
+    'access arguments' => array('administer debaser'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+
+/* 
+Implementation of hook_theme
+*/
+function debaser2_interface_theme() {
+  $items = array();
+  $path = drupal_get_path('module', 'debaser2_interface');   
+  
+  $items['debaser2_interface_rightscase_dashboard'] = array(
+    'arguments' => array(
+      'groups' => NULL, 
+      'activity' => NULL,
+      ),
+    'template' => 'rightscase-dashboard',
+    'path' => $path . '/theme/',
+  );
+
+  $items['debaser2_interface_dashboard_groups'] = array(
+    'arguments' => array('groups' => NULL),
+    'template' => 'debaser2-interface-dashboard-groups',
+    'path' => $path . '/theme/',
+  );
+  
+  return $items;
+}
+
+function debaser2_interface_perm(){
+  return array('administer debaser');
+}
+
+/*****************************************************************************************************************
+
+  PAGE CALLBACKS
+
+*****************************************************************************************************************/
+
+/**
+ *
+ */
+function debaser2_interface_dashboard_page(){
+  $result = db_query('SELECT nid, og_description as group_name FROM {og};');
+  $path = drupal_get_path('module', 'debaser2_interface');   
+  drupal_add_css($path . '/css/debaser2_interface.css');
+  while($row = db_fetch_object( $result ) ){
+    $groups[] = $row;
+  }
+  return theme( 'debaser2_interface_dashboard_groups', $groups );
+}
+
+function debaser2_interface_ddrd_dashboard(){
+  // get group names and totals
+  $i=0;
+  $og = debaser2_interface_get_og_names_and_ids();
+  foreach ($og as $group) {
+    $og['groups'][$i]['total'] = debaser2_interface_get_totals( $group['nid'] );
+    $og['groups'][$i]['name'] = $group['name'];
+    $i++;
+  }
+  $og['overall_total'] = debaser2_interface_get_total_cases();
+  $activity = debaser2_interface_get_activity();
+  $path = drupal_get_path('module', 'debaser2_interface');   
+  drupal_add_css($path . '/css/debaser2_interface.css');
+  return theme( 'debaser2_interface_rightscase_dashboard', $og, $activity );
+}
+
+function debaser2_interface_get_og_names_and_ids(){
+  $query = 'SELECT nid, og_description FROM og';
+  $result = db_query( $query );
+  while( $row = db_fetch_object( $result ) ){
+    $og[] = array(
+      'nid' => $row->nid,
+      'name' => $row->og_description,
+    );
+  }
+  return $og;
+}
+
+function debaser2_interface_get_total_cases(){
+  $query = 'select count(type) from {node} where type=\'case\'';
+  return db_result( db_query( $query ) );
+}
+
+function debaser2_interface_get_activity(){
+  $view = views_get_view( 'all_activity' );
+  $display = $view->execute_display( 'block_1' );
+  return $display['content'];
+}
+function debaser2_interface_get_totals( $gid ){
+  $get_group_total = 'SELECT 
+  COUNT( node.nid ) AS nid
+  FROM node 
+    INNER JOIN og_ancestry og_ancestry ON node.nid = og_ancestry.nid
+    LEFT JOIN content_type_case node_data_field_case_date ON node.vid = node_data_field_case_date.vid
+    LEFT JOIN node_revisions node_revisions ON node.vid = node_revisions.vid
+    WHERE (node.type in (\'case\')) AND (og_ancestry.group_nid = %d)
+    ';
+  $result = db_result( db_query( $get_group_total, $gid ) );
+  return $result;
+}
+
+
+
+
+
+

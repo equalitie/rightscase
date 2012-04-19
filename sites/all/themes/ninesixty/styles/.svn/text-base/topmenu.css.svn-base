@@ -1,0 +1,103 @@
+.main-menu {
+    width: 780px;
+    height: 40px;
+    background:url("../images/top-menu.gif") no-repeat;
+    position: relative;
+	list-style-type:none;
+
+}
+
+.main-menu li a:link, .main-menu li a:visited {
+	
+    position: absolute;
+    top: 0;
+    height: 40px;
+    text-indent: -9000px;
+    overflow: hidden;
+}
+
+/**************************************************************/
+.main-menu .one a:link, .main-menu .one a:visited {
+    left: 0px;
+    width: 77px;
+}
+
+.main-menu .one a:hover, .main-menu .one a:focus {
+    background:url("../images/top-menu.gif") no-repeat -0px -40px;
+}
+
+.main-menu .one a:active {
+    background:url("../images/top-menu.gif") no-repeat -0px -80px;
+}
+
+
+/**************************************************************/
+.main-menu .two a:link, .main-menu .two a:visited {
+    left: 77px;
+    width: 118px;
+}
+
+.main-menu .two a:hover, .main-menu .two a:focus {
+    background:url("../images/top-menu.gif") no-repeat -77px -40px;
+}
+
+.main-menu .two a:active {
+    background:url("../images/top-menu.gif") no-repeat -77px -80px;
+}
+
+
+/**************************************************************/
+.main-menu .three a:link, .main-menu .three a:visited {
+    left: 195px;
+    width: 174px;
+}
+
+.main-menu .three a:hover, .main-menu .three a:focus {
+    background:url("../images/top-menu.gif") no-repeat -195px -40px;
+}
+
+.main-menu .three a:active {
+    background:url("../images/top-menu.gif") no-repeat -195px -80px;
+}
+
+/**************************************************************/
+.main-menu .four a:link, .main-menu .four a:visited {
+    left: 369px;
+    width: 139px;
+}
+
+.main-menu .four a:hover, .main-menu .four a:focus {
+    background:url("../images/top-menu.gif") no-repeat -369px -40px;
+}
+
+.main-menu .four a:active {
+    background:url("../images/top-menu.gif") no-repeat -369px -80px;
+}
+
+
+/**************************************************************/
+
+.main-menu .five a:link, .main-menu .five a:visited {
+    left: 508px;
+    width: 89px;
+}
+
+.main-menu .five a:hover, .main-menu .five a:focus {
+    background:url("../images/top-menu.gif") no-repeat -508px -40px;
+}
+
+.main-menu .five a:active {
+    background:url("../images/top-menu.gif") no-repeat -508px -80px;
+}
+
+/********************************************************************/
+
+#site-menu{
+	margin-left:-3px;
+	margin-top: 1px;
+}
+
+#search-box{
+	margin-left:15px;
+	margin-top:9px;
+}

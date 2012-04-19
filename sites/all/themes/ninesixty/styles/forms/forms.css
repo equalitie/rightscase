@@ -1,0 +1,260 @@
+
+/****************************************************** CASE FORM ***************************************************/
+.case-node-form{
+	/*min-height:300px;
+	background-color:#55ff55;*/
+	
+}
+.case-title{
+	
+}
+
+.left-case{
+	margin-bottom: 12px;
+	border-bottom: #e6e6e6 1px solid;
+	margin-top: 8px;
+}
+
+/*gmap stuff - hide all fields except for the map itself*/
+
+#gmap-auto1map-locpick_latitude0-wrapper, #gmap-auto1map-locpick_longitude0-wrapper, 
+.case-gmap .description, #edit-field-map-ref-0-name-wrapper, #edit-field-map-ref-0-additional-wrapper, 
+#edit-field-map-ref-0-street-wrapper, #edit-field-map-ref-0-country-wrapper, 
+#edit-field-map-ref-0-delete-location-wrapper, 
+.location fieldset{
+	display:none;
+}
+
+
+/****************************************************** VIO FORM ******************************************************/
+.form-vio-date fieldset{
+	padding:0px;
+}
+
+.form-vio-date legend{
+	font-weight:bold;
+}
+
+/*********************************************** ALL FORMS ************************************************************/
+.add-label{
+	height:30px;
+	margin-top:-20px;
+}
+
+.left-form-container select{
+	
+}
+.form-item{
+	margin-bottom:8px;
+}
+
+
+.case-search-button{
+	margin-bottom: 10px;
+}
+.date-views-filter{
+	margin-right:30px;
+}
+
+.report-field{
+	/*
+	background-color:#aaffaa;
+	*/
+}
+
+.form-wrapper{
+	padding:15px;
+	margin:-15px;
+	border: 2px solid black;
+}
+
+.view-filters{
+	padding-top:5px;
+}
+
+#field_actor_files_values{
+	width:438px;
+}
+
+.widget-edit input.form-text{
+	
+}
+textarea{
+	border-color:#bbbbbb;
+}
+/************************************ INPUT/EDIT FORM ALIGNMENT ***************************/
+/** CASE EDIT FORM *************************************************************/
+#edit-title{
+	float:left;
+	width:220px;
+	margin-left:74px;
+}
+
+#edit-field-case-applicant-name-0-value{
+ 	float:left;
+ 	width:220px;
+  margin-left:55px;
+}
+
+#edit-field-case-date-0-value-datepicker-popup-0{
+	float:left;
+	margin-left:35px;
+	width:220px;
+}
+#edit-field-user-uid-uid{
+	float:left;
+	margin-left:56px;
+	width:226px;
+}
+
+
+.case-region .hierarchical-select{
+	float:left;
+	margin-left: 69px;
+}
+
+.form-item label{
+	float:left;
+}
+
+.form-item .description{
+	display:none;
+}
+#edit-title-wrapper label, #edit-field-case-date-0-value-wrapper label, #edit-field-user-uid-uid-wrapper label, #hierarchical-select-40-wrapper label, 
+#edit-field-case-applicant-name-0-value-wrapper label{
+	float:left;
+	margin-right:8px
+}
+.form-clear{
+	clear:both;
+	height:8px;
+}
+.right-form-container label, .case-resources label, .case-plan-of-action label, .case-contact label{
+	float:none;
+}
+
+/********************* INTERNAL PROCESSING ****************************************/
+#edit-taxonomy-7{
+	width:228px;
+	margin-left:20px
+}
+#edit-taxonomy-2{
+	width:228px;
+	margin-left:83px
+}
+
+
+/** ACTOR EDIT FORM *************************************************************/
+.input-text input, #edit-field-dob-0-value-datepicker-popup-0, #edit-field-phone-0-value, 
+#edit-field-date-death-0-value-datepicker-popup-0, #edit-taxonomy-tags-6, #edit-field-address-0-value
+{
+	width:222px !important;
+}
+
+#edit-field-actor-name-0-value {
+	margin-left:142px;
+}
+#edit-field-address-0-value{
+	margin-left:166px;
+}
+#edit-field-gender-value{
+	margin-left:165px;
+	width:229px;
+}
+
+#edit-taxonomy-14{
+	margin-left:99px;
+	width:229px;
+}
+#edit-field-actor-id-number-0-value{
+  margin-left:154px;
+	width:224px;
+}
+
+#edit-field-dob-0-value-datepicker-popup-0{
+	margin-left:143px;
+}
+
+#edit-field-date-death-0-value-datepicker-popup-0{
+	margin-left: 139px;
+}
+#edit-field-phone-0-value{
+	margin-left:178px;
+}
+#edit-field-email-0-email{
+	margin-left:134px;
+}
+#edit-field-occupation-0-value{
+	margin-left:150px;
+}
+
+.form-actor-ethnicity .selects{
+	float:left;
+	margin-left: 166px;
+}
+
+#edit-taxonomy-9{
+	width:228px;
+	margin-left: 114px;
+}
+#edit-taxonomy-10{
+	width:228px;
+	margin-left: 183px;
+}
+#edit-taxonomy-11{
+	width:228px;
+	margin-left: 158px;
+}
+
+#edit-field-actor-photo-0-upload{
+	margin-left:120px;
+}
+#edit-field-actor-photo-0-filefield-upload{
+	clear:both;
+}
+#edit-field-actor-photo-0-filefield-upload{
+	margin-left:120px;
+}
+
+/** actor file fields ***/
+#field_actor_files_values td + td{
+	max-width:300px;
+}
+
+#field_actor_files_values .form-text{
+	max-width:280px;
+}
+
+#edit-field-contact-details-0-value-wrapper{
+	clear:left;
+}
+
+/** VIOLATION EDIT FORM *************************************************************/
+#edit-taxonomy-tags-6 {
+	width:228px;
+	margin-left:148px;
+}
+
+#edit-field-national-law-0-value{
+	margin-left:140px;
+}
+#edit-field-vio-date-0-value-datepicker-popup-0{
+	margin-left:156px;
+}
+#edit-field-vio-date-0-value2-datepicker-popup-0{
+	margin-left:171px;
+}
+
+.form-vio-province .selects{
+	margin-left: 125px;
+}
+
+#edit-taxonomy-5{
+	width:228px;
+	margin-left:78px;
+}
+
+
+#edit-field-outcome-0-value-wrapper{
+    clear: left;
+}

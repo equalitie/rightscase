@@ -1,0 +1,185 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Luis Fernando do Nascimento
+Creation Date : 15/11/2011
+Description   : Test case to compare data transfered between drupal tables and report new ones
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class Debaser_Transfer_Test_Violation_Actors extends DrupalWebTestCase{
+
+  protected $privileged_user;
+
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Data Transfer - Violation Actors'),
+      'description' => t('Compare Violation Actors between Drupal and New Report Tables.'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports', 'debaser2_transfer'
+    );
+
+    //Create some Drupal Tables (Nodes, Terms...) with data
+    $this->_insert_data();
+
+    //Create Transfer Aux Table and Populate it
+    $data   = debaser2_transfer_get_term_data();
+    $result = debaser2_transfer_insert_term_data($data['items']);
+
+
+
+
+    //Create and log in our privileged user.
+    //$this->privileged_user = $this->drupalCreateUser( array(
+    //  'debaser2 transfer admin page',
+    //));
+    //$this->drupalLogin($this->privileged_user);
+
+  }
+
+  //Get Data from sql file and insert on test tables
+  public function _insert_data(){
+    $path = drupal_get_path( 'module', 'debaser2_transfer' );
+
+    $handle  = @fopen( $path . "/sql/debaser2_transfer.sql", "r" );
+    $queries = array();
+
+    if ($handle) {
+      while ( ( $buffer = fgets( $handle, 4096 ) ) !== false ) {
+        if( strpos( $buffer, 'INSERT INTO' ) !== false || strpos( $buffer, 'CREATE TABLE' ) !== false ) {
+          $queries[] = $buffer;
+          db_query( $buffer );
+        }
+      }
+      fclose( $handle );
+    }
+  }
+
+
+  /**
+   *  Execute tests to verify Cases created
+   *
+   */
+  public function test_violation_actor_data() {
+    //Execute Case Transfer
+    $case_data   = debaser2_transfer_get_case_data();
+    $case_result = debaser2_transfer_insert_case_data($case_data['items']);
+
+    //Execute Actors Transfer - Needs the case result to use proper case ids
+    $actor_data   = debaser2_transfer_get_actor_data($case_result['items']);
+    $actor_result = debaser2_transfer_insert_actor_data($actor_data['items']);
+
+    //Execute violation transfer - Needs the case result to use proper case ids
+    $violation_data = debaser2_transfer_get_violation_data($case_result['items']);
+    $violation_result = debaser2_transfer_insert_violation_data($violation_data['items']);
+
+    //Execute violation transfer - Needs the violation result to use proper violation ids
+    $violation_actor_data = debaser2_transfer_get_violation_actor_data($violation_result['items']);
+    $violation_actor_result = debaser2_transfer_insert_violation_actor_data($violation_actor_data['items']);
+
+    $destination = array( 1 => 'debaser2_actor_type',
+                          2 => 'debaser2_case_status',
+                          3 => 'debaser2_location',
+                          4 => 'debaser2_actor_ethnicity',
+                          5 => 'debaser2_violation_international_standard',
+                          7 => 'debaser2_case_intervention_reason',
+                          9 => 'debaser2_actor_political_affiliation',
+                         13 => 'debaser2_violation_type',
+                        );
+
+    $fields = array(1 => 'debaser2_actor_type_id',
+                    4 => 'debaser2_actor_ethnicity_id',
+                    9 => 'debaser2_actor_political_affiliation_id',
+                  );
+
+    //$this->fail( '<pre>' . print_r($data, true) . '</pre>');
+
+
+    foreach($violation_actor_data['items'] as $violation) {
+      foreach($violation as $actor) {
+
+        //Search for this case in the new tables
+
+        //$this->fail( '<pre>' . print_r($actor, true) . '</pre>');
+
+        $query = "SELECT *
+                    FROM {debaser2_violation_actor}
+                   WHERE age = %d
+                     AND age_0_18 = %d
+                     AND age_19_35 = %d
+                     AND age_36_54 = %d
+                     AND age_55_more = %d
+                     AND debaser2_violation_id = %d
+                     AND debaser2_actor_political_affiliation_id = %d
+                     AND debaser2_actor_ethnicity_id = %d
+                     AND debaser2_actor_type_id = %d
+                     AND debaser2_actor_gender_id = %d";
+
+        $actor_result = db_query($query,
+                                $actor['age'],
+                                $actor['age_0_18'],
+                                $actor['age_19_35'],
+                                $actor['age_36_54'],
+                                $actor['age_55_more'],
+                                $actor['debaser2_violation_id'],
+                                $actor['debaser2_actor_political_affiliation_id'],
+                                $actor['debaser2_actor_ethnicity_id'],
+                                $actor['debaser2_actor_type_id'],
+                                $actor['debaser2_actor_gender_id']
+                               );
+
+        $valid = ($actor_result->num_rows > 0);
+
+        $actor_data = db_fetch_array($actor_result);
+
+
+        $this->assertTrue($valid, '<b>Case Actor</b> width <b>ID ' . $actor_data['id'] . '</b> successfuly Created' );
+
+
+        //Verify Terms Related
+        foreach($actor['terms'] as $term) {
+          $table = $destination[$term['vid']];
+          $field = $fields[$term['vid']];
+
+          $query = "SELECT t.title
+                      FROM {debaser2_violation_actor} db2va
+                INNER JOIN {debaser2_aux_terms} db2at ON (db2at.id = db2va ." . $field . " )
+                INNER JOIN {" . $table . "} t  ON  ( t.id = db2at.id AND db2at.vid = " . $term['vid'] . " )
+                     WHERE db2at.tid = %d
+                       AND db2at.vid = %d";
+
+          $term_result = db_query( $query, $term['tid'], $term['vid'] );
+
+          $valid = ($term_result->num_rows > 0);
+          $term_data = db_fetch_array( $term_result );
+
+          //Verify if the term was found
+          $this->assertTrue($valid, 'Related Term <b>' . $term['text'] . '</b> found on <b>' . $table . '</b>');
+
+          //If term was found, try to compare to it's original
+          if($valid) {
+            $this->assertEqual($term_data['title'],
+                               $term['text'],
+                               'Term found is iqual to his original. <br><b>New:</b> ' . $term_data['title'] . ' <br><b>Original:</b> ' . $term['text'] );
+          }
+
+          //$this->fail( '<pre>' . print_r($term, true) . '</pre>');
+        }
+      }
+    }
+  }
+
+}
+

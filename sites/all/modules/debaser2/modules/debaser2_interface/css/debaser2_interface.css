@@ -1,0 +1,27 @@
+.group-button a{
+  background-color:#cdcdcd;
+  width: 500px;
+  height: 150px;
+  border: 2px solid black;
+  font-size:15px;
+  text-decoration:none;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top:15px;
+  padding-bottom:15px;
+
+}
+
+.group-button{
+margin-top: 45px;
+}
+   
+.dash-text{
+  font-size:13px;
+  margin-bottom: 5px;
+}
+
+.view-display-id-block_1 .views-row{
+  width:200px !important;
+  float: left;
+}

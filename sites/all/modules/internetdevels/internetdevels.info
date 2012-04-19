@@ -1,0 +1,6 @@
+; $internetdevels$
+name = internetdevels
+description = internetdevels module
+package = module
+version = 1.0
+core = 6.x

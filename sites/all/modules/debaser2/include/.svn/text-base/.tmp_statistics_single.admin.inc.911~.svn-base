@@ -1,0 +1,376 @@
+<?php
+/*
+ * This file will handle the generation of charts based on a single field from the database
+ *
+ */
+
+
+function get_statistics_display(){
+	return drupal_get_form('statistics_form');
+}
+
+
+/**
+ * handle the results of the criteria selection
+ * @param object $form
+ * @param object $form_state
+ * @return 
+ */
+function statistics_form_handling(&$form_state){
+	$field = $form_state['post']['field_type'];
+	//drupal_set_message($form['field_options']['#value'][$field].t(' selected'));
+	$width = 500;
+    $height = 500;
+	switch($field){
+		case 0://Age
+			$title = t('Cases by Age');
+			$case_data_array = get_cases_by_age();
+			
+			break;
+		case 1://Gender
+			$title = t('Cases by Gender');
+			$case_data_array = get_cases_by_gender();
+			break;
+		case 2://Status
+			$title = t('Cases by Status');
+			$case_data_array = get_cases_by_status();
+			break;
+		case 3://Location
+			$location = $form_state['post']['location'];
+			$title = t('Cases by Location');
+			$case_data_array = get_cases_by_location($location);
+			break;
+	}
+	$chart_data = parse_data($case_data_array);
+	$chart_labels = parse_data_labels($case_data_array);
+	return generate_pie_chart($chart_data, $chart_labels,  $title, $width, $height);
+}
+
+/*********************************** AGE CHART ***********************************************************/
+
+function get_cases_by_age(){
+	$cases_age = array();
+	
+	$view = views_get_view('age_stats');
+	$view->execute();
+	
+	if (count($view->result)) {
+  		foreach ($view->result as $actor) {
+  			$age = $actor->node_data_field_age_field_age_value;
+			switch($age){
+				case $age<= 18:
+					$case_range_0++;
+					break;
+				case $age<= 35:
+					$case_range_1++;
+					break;
+				case $age<= 50:
+					$case_range_2++;
+					break;
+				case $age> 50:
+					$case_range_3++;
+					break;		
+			}
+  		}
+	}
+	$i=0;
+	if ($case_range_0){
+		$cases_age[$i]['label'] = '0 - 18';
+		$cases_age[$i]['num_cases'] = $case_range_0;
+		$i++;
+	}
+	if ($case_range_1){
+		$cases_age[$i]['label'] = '19 - 35';
+		$cases_age[$i]['num_cases'] = $case_range_1;
+		$i++;
+	}
+	if ($case_range_2){
+		$cases_age[$i]['label'] = '36 - 50';
+		$cases_age[$i]['num_cases'] = $case_range_2;
+		$i++;
+	}
+	if ($case_range_3){
+		$cases_age[$i]['label'] = '50 plus';
+		$cases_age[$i]['num_cases'] = $case_range_3;
+		$i++;
+	}
+	
+	return $cases_age;
+
+}
+/*********************************************************************************************************/
+
+
+/*********************************** GENDER CHART ******************************************************/
+function get_cases_by_gender(){
+	$cases_age = array();
+	
+	$view = views_get_view('gender_stats');
+	$view->execute();
+	if (count($view->result)) {
+		foreach ($view->result as $actor) {
+			$gender = $actor->node_data_field_gender_field_gender_value;
+			if($gender=='male')$case_range_0++;
+			else $case_range_1++;
+			}
+	}
+	$i=0;
+	if ($case_range_0){
+		$cases_age[$i]['label'] = t('Male');
+		$cases_age[$i]['num_cases'] = $case_range_0;
+		$i++;
+	}
+	if ($case_range_1){
+		$cases_age[$i]['label'] = t('Female');
+		$cases_age[$i]['num_cases'] = $case_range_1;
+		$i++;
+	}
+	return $cases_age;
+}
+/*********************************************************************************************************/
+
+/*********************************** STATUS CHART ******************************************************/
+
+function get_cases_by_status(){
+	$cases_age = array();
+	
+	$view = views_get_view('status_stats');
+	$view->execute();
+	if (count($view->result)) {
+		foreach ($view->result as $internal) {
+			$status = $internal->term_data_name;
+			switch($status){
+				case 'New':
+					$case_range_0++;
+					break;
+				case 'In Process':
+					$case_range_1++;
+					break;
+				case 'Litigation':
+					$case_range_2++;
+					break;
+				case 'Closed':
+					$case_range_3++;
+					break;
+				
+			}
+			
+			}
+	}
+	$i=0;
+	if ($case_range_0){
+		$cases_age[$i]['label'] = t('New');
+		$cases_age[$i]['num_cases'] = $case_range_0;
+		$i++;
+	}
+	if ($case_range_1){
+		$cases_age[$i]['label'] = t('In Process');
+		$cases_age[$i]['num_cases'] = $case_range_1;
+		$i++;
+	}
+	if ($case_range_2){
+		$cases_age[$i]['label'] = t('Litigation');
+		$cases_age[$i]['num_cases'] = $case_range_2;
+		$i++;
+	}
+	if ($case_range_3){
+		$cases_age[$i]['label'] = t('Closed');
+		$cases_age[$i]['num_cases'] = $case_range_3;
+		$i++;
+	}
+	
+	return $cases_age;
+}
+/*********************************************************************************************************/
+
+/*********************************** LOCATION CHART ******************************************************/
+function get_cases_by_location($location){
+	$cases_age = array();
+	$view = views_get_view('location_stats');
+	$view->set_items_per_page(0);
+	if($location)$view->set_arguments(array("$location"));
+	
+	$view->execute();
+	$i=0;
+	if (count($view->result)) {
+		if($location){
+			foreach ($view->result as $case) {
+				if ($index = check_location_exists($cases_age, $case->term_data_tid)==-1) {
+					$cases_age[$i]['label'] = $case->term_data_name;
+					$cases_age[$i]['id'] = $case->term_data_tid;
+					$cases_age[$i]['num_cases']++;
+					$i++;
+				}else{
+					$cases_age[$index]['num_cases']++;
+				}
+			}
+		}else{
+			foreach ($view->result as $case) {
+				$parent = taxonomy_get_parents($case->term_data_tid);
+				$pid = get_parent_id($parent);
+				$index = check_location_exists($cases_age, $parent[$pid]->tid);
+				if ($index==-1) {
+					$cases_age[$i]['label'] = $parent[$pid]->name;
+					$cases_age[$i]['id'] = $parent[$pid]->tid;
+					$cases_age[$i]['num_cases']++;
+					$i++;
+				}else{
+					$cases_age[$index]['num_cases']++;
+				}
+			}
+		}
+	}
+	return $cases_age;
+}
+
+function get_parent_id($parent){
+	foreach ($parent as $key => $variable) {
+		return $key;
+	}
+}
+
+function check_location_exists($cases_age, $term_id) {
+	$i=0;
+	foreach ($cases_age as $case) {
+		if ($case['id']==$term_id)return $i;
+		$i++;
+	}
+	return -1;
+}
+
+/*********************************************************************************************************/
+
+
+
+
+
+
+
+/************************** ARRAY PARSING ****************************************************************/
+
+function parse_data($case_data) {
+	$i=0;
+	$num_case = array();
+	foreach ($case_data as $num_cases) {
+		$num_case[$i] = $num_cases['num_cases'];
+		$i++;
+	}
+	return $num_case;
+}
+
+
+function parse_data_labels($case_data) {
+	$i=0;
+	$label = array();
+	foreach ($case_data as $num_cases) {
+		$label[$i] = $num_cases['label'];
+		$i++;
+	}
+	return $label;
+}
+
+
+/*********************************************************************************************************/
+
+/**************************** FORM BUILDING FUNCTIONS ****************************************************/
+
+
+
+function select_region_widget(){
+	$vocab = taxonomy_get_tree(3);
+	$region_names = array();
+	$region_names[0] = "Select Region";
+	$i=0;
+	foreach ($vocab as $term) {
+		if (!$term->depth) {
+			$region_names[$term->tid] = $term->name;
+		};
+	}
+	$location = array(
+		'#title'=>'Location',
+		'#type'=>'select',
+		'#description'=>t('Select Region you want to graph, or leave blank to graph by top level regions'),
+		'#options'=>$region_names,
+		
+	);
+	return $location;
+}
+
+
+
+
+/**
+ * build a multistep form to allow post results to be sent back to the same page
+ * @param object $form_values [optional]
+ * @return 
+ */
+function statistics_form($form_values = NULL){
+	$form['#multistep'] = TRUE;
+ 
+  	$form['#redirect'] = FALSE;
+	$form['field_options'] = array(
+		'#type'=>'value',
+		'#value'=>array(t('Age'), t('Gender'), t('Status'), t('Location')),
+	);
+	$form['field_type'] = array(
+		'#title'=>'Field',
+		'#type'=>'select',
+		'#description'=>t('Select field for graph'),
+		'#options'=>$form['field_options']['#value'],
+	);
+	$form['region'] = array(
+		'#title'=> 'Select Region',
+		'#type'=>'fieldset',
+		'#collapsible'=>TRUE,
+		'#collapsed'=>TRUE,
+		
+	);
+	$form['region']['location'] = select_region_widget();
+	
+	$form['submit'] = array(
+		'#type'=>'submit',
+		'#value'=>'Display Chart');
+	
+	if ($form_values!=NULL) {
+		$form['results'] = array(
+	      '#type' => 'item',
+	      '#title' => t('The results of your form submission'),
+	      '#value' => statistics_form_handling($form_values),
+	    );
+	}
+	
+		return $form;
+	
+}
+
+/*********************************************************************************************************/
+
+
+
+/************************************* GRAPH GENERATION FUNCTIONS *************************************/
+/**
+ * generates a pie chart based on the data from the user
+ * @param int array $chart_data
+ * @param String $chart_labels
+ * @param String $title title of the graph
+ * @param int $width
+ * @param int $height
+ * @return The javascript needed to embed the graph
+ */
+function generate_pie_chart($chart_data, $chart_labels, $title, $width, $height) {
+    drupal_add_js($base_path."/sites/all/modules/debaser2_custom/swfobject/swfobject.js");
+    srand((double) microtime() * 1004000);
+    $colors = array();
+    for ($i = 0; $i < count($chart_data); $i++) {
+        $colors[$i] = sprintf("#%u%u%u%u%u%u", dechex(mt_rand(0, 15)), dechex(mt_rand(0, 15)), dechex(mt_rand(0, 15)), dechex(mt_rand(0, 15)), dechex(mt_rand(0, 15)), dechex(mt_rand(0, 15)));
+    }
+    $chart = new open_flash_chart_api();
+    $chart->pie(60, '#505050', '{font-size: 12px; color: #404040;');
+    $chart->pie_values($chart_data, $chart_labels);
+    $chart->pie_slice_colours($colors);
+    $chart->set_tool_tip('Value: #val# case(s)');
+    $chart->title($title, '{font-size:18px; color: #d01f3c}');
+    $chart->set_width($width);
+    $chart->set_height($height);
+    return $chart->render();
+}

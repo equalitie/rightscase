@@ -1,0 +1,5 @@
+<?php 
+function get_tag_cloud(){
+	
+	return tagadelic_page_chunk(array(6));
+}

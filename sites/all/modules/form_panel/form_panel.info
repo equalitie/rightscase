@@ -1,0 +1,11 @@
+; $Id: form_panel.info,v 1.1 2008/12/22 17:30:47 gribnif Exp $
+name = "Form Panel"
+description = "Allows form input fields to appear next to each other, in a panel style."
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-12-22
+version = "6.x-1.0"
+core = "6.x"
+project = "form_panel"
+datestamp = "1229973332"
+

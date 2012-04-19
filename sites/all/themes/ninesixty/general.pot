@@ -1,0 +1,152 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  page.tpl.php,v 1.1.2.1 2009/02/24 15:34:45 dvessel
+#  template.php,v 1.1.2.3 2009/07/18 17:48:55 dvessel
+#  ninesixty.info,v 1.1.2.3 2009/06/05 17:52:14 dvessel
+#  display-templates/actor-display-views/views-view--case-actors.tpl.php: n/a
+#  views-view-unformatted.tpl.php,v 1.6 2008/10/01 20:52:11 merlinofchaos
+#  views-view-fields.tpl.php,v 1.6 2008/09/24 22:48:21 merlinofchaos
+#  form-templates/statistics-form.tpl.php: n/a
+#  views-view-field.tpl.php,v 1.1 2008/05/16 22:22:32 merlinofchaos
+#  js/flash-check.js: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-06-08 12:16-0400\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: page-front.tpl.php:42 page.tpl.php:46 template.php:15;15;18;21
+msgid "Home"
+msgstr ""
+
+#: page-front.tpl.php:43
+msgid "Search for Cases"
+msgstr ""
+
+#: page-front.tpl.php:43 page.tpl.php:47
+msgid "Case Details"
+msgstr ""
+
+#: page-front.tpl.php:44
+msgid "Statistical analysis of data collected"
+msgstr ""
+
+#: page-front.tpl.php:44 page.tpl.php:48
+msgid "Analysis &amp; Statistics"
+msgstr ""
+
+#: page-front.tpl.php:45
+msgid "View the most recently updated content in the application"
+msgstr ""
+
+#: page-front.tpl.php:45 page.tpl.php:49
+msgid "Recent Activity"
+msgstr ""
+
+#: page-front.tpl.php:46
+msgid "Debaser User Manual"
+msgstr ""
+
+#: page-front.tpl.php:46 page.tpl.php:50
+msgid "Manual"
+msgstr ""
+
+#: page-front.tpl.php:95
+msgid "Please enable your javascript."
+msgstr ""
+
+#: template.php:231
+msgid "Search this Site"
+msgstr ""
+
+#: template.php:425
+msgid "Case"
+msgstr ""
+
+#: ninesixty.info:0
+msgid "960 Grid System"
+msgstr ""
+
+#: ninesixty.info:0
+msgid "A blank base theme using the 960 Grid System. See the \"README.txt\" file within the theme folder for more information."
+msgstr ""
+
+#: ninesixty.info:0
+msgid "case list footer"
+msgstr ""
+
+#: ninesixty.info:0
+msgid "admin links"
+msgstr ""
+
+#: display-templates/actor-display-views/views-view--case-actors.tpl.php:12
+msgid "Actors"
+msgstr ""
+
+#: display-templates/actor-files/views-view-unformatted--case-files.tpl.php:15
+msgid "Actor Name"
+msgstr ""
+
+#: display-templates/actor-files/views-view-unformatted--case-files.tpl.php:15
+msgid "File Name"
+msgstr ""
+
+#: display-templates/actor-files/views-view-unformatted--case-files.tpl.php:15
+msgid "File Type"
+msgstr ""
+
+#: display-templates/actor-files/views-view-unformatted--case-files.tpl.php:15
+msgid "Size"
+msgstr ""
+
+#: display-templates/actor-files/views-view-unformatted--case-files.tpl.php:15
+msgid "Description"
+msgstr ""
+
+#: display-templates/case-display-views/views-view-fields--case-details.tpl.php:100
+msgid "Applicant "
+msgstr ""
+
+#: display-templates/case-display-views/views-view-fields--case-details.tpl.php:166
+msgid "Edit Case"
+msgstr ""
+
+#: display-templates/case-display-views/views-view-fields--case-details.tpl.php:166
+msgid "Edit Report"
+msgstr ""
+
+#: display-templates/case-display-views/views-view-fields--case-details.tpl.php:176
+msgid "Add Case"
+msgstr ""
+
+#: display-templates/case-display-views/views-view-fields--case-details.tpl.php:183 form-templates/statistics-form.tpl.php:96
+msgid "Printer View"
+msgstr ""
+
+#: display-templates/recent-activity-views/views-view-field--all-activity--nid.tpl.php:24
+msgid "Last edit by "
+msgstr ""
+
+#: js/flash-check.js:0
+msgid "You have an outdated version of Adobe Flash player. Please "
+msgstr ""
+
+#: js/flash-check.js:0
+msgid "Click here"
+msgstr ""
+
+#: js/flash-check.js:0
+msgid " to install the latest version"
+msgstr ""
+

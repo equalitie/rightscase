@@ -1,0 +1,11 @@
+; $Id: debaser2_reports.info,v 1.0.0.0 2011/11/14 10:32:00  Exp $: debaser2
+name = debaser2 reports
+package = Debaser2
+core = 6.0
+description = install new tables to let the reports to be easiers and fasters.
+
+version = "6.x-1.0"
+core = "6.x"
+project = "debaser2"
+datestamp = "1231941649"
+

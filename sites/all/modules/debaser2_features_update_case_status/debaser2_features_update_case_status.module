@@ -1,0 +1,3 @@
+<?php
+
+include_once('debaser2_features_update_case_status.features.inc');

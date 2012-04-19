@@ -1,0 +1,120 @@
+<?php 
+function debaser2_custom_views_query_alter(&$view, &$query) {
+	//echo $view->name."<br>";
+	if ($view->name == 'case_display') {
+		//dprint_r($query);
+		
+		
+	}
+}
+
+/*
+ * 
+ 	//dprint_r($view->name);
+	if ($view->name == 'og_members_custom') {
+		dprint_r($view->name);
+  	//$group_id = get_user_group();
+  	//dprint_r($group_id);
+  	$query->where[0]['clauses'][3] = 'og_uid.nid=4';
+  	//dprint_r("hello");
+	}
+  
+}
+*/
+function get_user_group(){
+	global $user;
+	$usernode = user_load(array('uid' => $user->uid));
+	//dprint_r($usernode);
+	if (isset($usernode->og_groups)){
+		foreach ($usernode->og_groups as $variable) {
+			return $variable['nid'];
+		}
+	}
+}
+
+function debaser2_custom_menu(){
+	
+	$items['individual_statistics'] = array(
+		'title'=>'pie', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access content'), 
+		'type'=>MENU_CALLBACK,
+		'file'=>'/include/statistics_single.admin.inc',
+		);
+	$items['correlative_statistics'] = array(
+		'title'=>'Correlative Statistics', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access content'), 
+		'type'=>MENU_CALLBACK,
+		'file'=>'include/correlative_statistics.admin.inc',
+		);
+	$items['correlative_statistics_3'] = array(
+		'title'=>'Correlative Statistics by case', 
+		'page callback'=>'get_statistics_display', 
+		'access arguments'=>array('access content'), 
+		'type'=>MENU_CALLBACK,
+		'file'=>'include/statistics_multiple.admin.inc',
+		);
+	return $items;
+}
+
+/*************************** TAXONOMY MANIPULATION FUNCTIONS *********************************************/
+
+function load_taxonomy_term($taxonomy, $vid){
+	foreach ($taxonomy as $term) {
+		if ($term->vid==$vid) return $term;
+	}
+	
+}
+
+function get_term_name($term_id){
+	$tax = taxonomy_get_term($term_id);
+	return $tax->name;
+}
+
+/*********************************************************************************************************/
+
+
+/*************************** VIEWS MANIPULATION FUNCTIONS ************************************************/
+
+/**
+ * get the results of a views execution using the views 2 API
+ * @param object $view_name
+ * @param object $arguments [optional]
+ * @return views result
+ */
+function get_views_result($view_name, $arguments=0) {
+	$view = views_get_view($view_name);
+	$view->set_items_per_page(0);
+	if($arguments)$view->set_arguments($arguments);
+	$view->execute();
+	return $view->result;
+}
+
+
+/**************************** FORM BUILDING FUNCTIONS ****************************************************/
+
+
+
+function select_region_widget(){
+	$vocab = taxonomy_get_tree(3);
+	$region_names = array();
+	$region_names[0] = t("Select Region");
+	$i=0;
+	foreach ($vocab as $term) {
+		if (!$term->depth) {
+			$region_names[$term->tid] = $term->name;
+		};
+	}
+	$location = array(
+		'#title'=>'Location',
+		'#type'=>'select',
+		'#description'=>t('Select Region you want to graph, or leave blank to graph by top level regions'),
+		'#enabled'=>FALSE,
+		'#options'=>$region_names,
+		
+	);
+	return $location;
+}
+
+

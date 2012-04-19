@@ -1,0 +1,52 @@
+/**** STATS FORM **************************************************************************/
+.stats-form{
+	
+}
+
+.stats-form-container select{
+width: 180px;
+}
+
+
+.button-container{
+	border-top: 1px solid #e6e6e6;
+	margin-top: 10px;
+}
+
+.stats-button-holder{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	
+	
+}
+.stats-button-holder input{
+width: 180px;
+}
+
+.graph-container{
+margin-left: 20px;
+}
+
+.stats-header{
+font-weight: bold;
+color:#63AEE0;
+margin-bottom: 9px;
+border-bottom: 1px solid #e6e6e6;
+}
+
+.stats-header:hover{
+text-decoration: underline;
+cursor: pointer;
+}
+
+.case-radio{
+float:left;
+margin-top: 18px;
+}
+.case-select{
+float:left;
+}
+
+.clear-case{
+	clear: left;
+}

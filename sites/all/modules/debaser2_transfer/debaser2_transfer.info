@@ -1,0 +1,11 @@
+; $Id: debaser2_transfer.info,v 1.0.0.0 2011/11/14 10:32:00  Exp $: debaser2
+name = debaser2 transfer
+package = Debaser2
+core = 6.0
+description = Execute the data transfer to new report tables.
+
+version = "6.x-1.0"
+core = "6.x"
+project = "debaser2"
+datestamp = "1231941649"
+

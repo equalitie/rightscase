@@ -1,0 +1,655 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  debaser2.module: n/a
+#  include/statistics_single.admin.inc: n/a
+#  debaser2.info,v 1.1.2.3 2009/06/28 13:19:07 
+#  include/graph_generators.php: n/a
+#  include/correlative_statistics.admin.inc: n/a
+#  include/statistics_multiple.admin.inc: n/a
+#  theme/vio-page.tpl.php: n/a
+#  include/violation_actor_stats.admin.inc: n/a
+#  theme/actor-page.tpl.php: n/a
+#  include/single_stats_new.admin.inc: n/a
+#  modules/debaser2_interface/debaser2_interface.module: n/a
+#  modules/debaser2_interface/theme/debaser2-interface-dashboard-groups.tpl.php: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-06-08 12:01-0400\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: debaser2.module:237
+msgid "N/A"
+msgstr ""
+
+#: debaser2.module:387
+msgid "<Select>"
+msgstr ""
+
+#: debaser2.module:455;462
+msgid "Cases info block"
+msgstr ""
+
+#: debaser2.module:497 include/statistics_single.admin.inc:87
+msgid "Select Region"
+msgstr ""
+
+#: debaser2.module:507
+msgid "Select Region you want to graph, or leave blank to graph by top level regions"
+msgstr ""
+
+#: debaser2.module:595
+msgid "date of birth after date of death"
+msgstr ""
+
+#: debaser2.module:602
+msgid "date of birth after current date"
+msgstr ""
+
+#: debaser2.module:17
+msgid "access stats content"
+msgstr ""
+
+#: debaser2.module:44
+msgid "Statistics"
+msgstr ""
+
+#: debaser2.module:51
+msgid "Graphs"
+msgstr ""
+
+#: debaser2.module:58
+msgid "Victim vs Violation Graphs"
+msgstr ""
+
+#: debaser2.module:76
+msgid "Violations List"
+msgstr ""
+
+#: debaser2.module:86
+msgid "update names"
+msgstr ""
+
+#: debaser2.module:98
+msgid "show a Violation"
+msgstr ""
+
+#: debaser2.module:105
+msgid "load an actor"
+msgstr ""
+
+#: debaser2.info:0
+msgid "debaser2  modifications"
+msgstr ""
+
+#: debaser2.info:0
+msgid "modifies forms to display how we want them"
+msgstr ""
+
+#: debaser2.info:0 modules/debaser2_interface/debaser2_interface.info:0
+msgid "Debaser2"
+msgstr ""
+
+#: include/graph_generators.php:36 include/statistics_single.admin.inc:221;227;233;240;359
+msgid "Cases"
+msgstr ""
+
+#: include/graph_generators.php:233
+msgid "Number of "
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24
+msgid "Age of Victim"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24
+msgid "Location of Violation"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24
+msgid "Gender of Victim "
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24 theme/vio-page.tpl.php:35
+msgid "Violation Type"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24
+msgid "Date of Violation"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:24 include/statistics_multiple.admin.inc:24 include/statistics_single.admin.inc:51;61
+msgid "Case Status"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:31 include/statistics_multiple.admin.inc:31 include/statistics_single.admin.inc:72
+msgid "Chart type"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:33;39;46 include/statistics_multiple.admin.inc:33;46 include/statistics_single.admin.inc:74
+msgid "Select field for graph"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:34 include/statistics_multiple.admin.inc:34 include/statistics_single.admin.inc:75
+msgid "Bar Chart"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:34 include/statistics_multiple.admin.inc:34 include/statistics_single.admin.inc:75
+msgid "Pie Chart"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:37;44 include/statistics_multiple.admin.inc:44
+msgid "Field"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:85
+msgid "Victims by Age Vs Ethnicity"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:86;104;113 include/statistics_single.admin.inc:28 include/violation_actor_stats.admin.inc:349;350 theme/actor-page.tpl.php:108
+msgid "Ethnicity"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:92 include/statistics_single.admin.inc:28 include/violation_actor_stats.admin.inc:323 theme/actor-page.tpl.php:117
+msgid "Age"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:93;107;115 include/statistics_single.admin.inc:35
+msgid "Victim"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:99;114 include/statistics_single.admin.inc:28 include/violation_actor_stats.admin.inc:336;337;388;389;419 theme/actor-page.tpl.php:73
+msgid "Gender"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:100
+msgid "Victims by Location Vs Gender"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:103
+msgid "Victims by Location Vs Ethnicity"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:106 theme/vio-page.tpl.php:51
+msgid "Location"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:112
+msgid "Victims by Gender Vs Ethnicity"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:162;209 include/statistics_multiple.admin.inc:138;187
+msgid "<18"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:168;213 include/statistics_multiple.admin.inc:144;191
+msgid "19 - 35"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:174;217 include/statistics_multiple.admin.inc:150;195
+msgid "35 - 50"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:180;221 include/statistics_multiple.admin.inc:156;199
+msgid "50 plus"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:331 include/statistics_single.admin.inc:440;556
+msgid "Male"
+msgstr ""
+
+#: include/correlative_statistics.admin.inc:334 include/statistics_single.admin.inc:561
+msgid "Female"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:164
+msgid "Perpetrators by Political Affiliation"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:165 include/statistics_single.admin.inc:711 theme/vio-page.tpl.php:85
+msgid "Perpetrators"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:166 include/statistics_single.admin.inc:28;166;180;192;205
+msgid "Actor Type"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:167;178;179;190;191;202;203 include/violation_actor_stats.admin.inc:361;362 theme/actor-page.tpl.php:81
+msgid "Affiliation"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:176
+msgid "Victims by Political Affiliation"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:177 include/statistics_single.admin.inc:711 include/violation_actor_stats.admin.inc:321;335;348;360;373;387;397;407;417 theme/vio-page.tpl.php:76
+msgid "Victims"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:188
+msgid "Witnesses by Political Affiliation"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:189 include/statistics_single.admin.inc:711
+msgid "Witnesses"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:200 include/statistics_single.admin.inc:714
+msgid "Actors by Political Affiliation"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:201 include/statistics_single.admin.inc:157;168;182;194;207
+msgid "Actors"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:210
+msgid "Violations by Case Status vs Location"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:211;221;231 include/statistics_single.admin.inc:245;747
+msgid "Violations"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:212;213 include/statistics_single.admin.inc:41;220
+msgid "Status"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:220
+msgid "Violations by Months vs Location"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:222
+msgid "Months"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:223 include/statistics_single.admin.inc:234;253
+msgid "Month"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:230
+msgid "Violations by Years vs Location"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:232 include/violation_actor_stats.admin.inc:418
+msgid "Years"
+msgstr ""
+
+#: include/single_stats_new.admin.inc:233 include/statistics_single.admin.inc:258 include/violation_actor_stats.admin.inc:398;399;408;409
+msgid "Year"
+msgstr ""
+
+#: include/statistics_multiple.admin.inc:61 include/statistics_single.admin.inc:97 include/violation_actor_stats.admin.inc:85
+msgid "Display Chart"
+msgstr ""
+
+#: include/statistics_multiple.admin.inc:175
+msgid "Cases by Age Vs Ethnicity"
+msgstr ""
+
+#: include/statistics_multiple.admin.inc:230
+msgid "Cases by Location Vs Gender"
+msgstr ""
+
+#: include/statistics_single.admin.inc:28;41;61;904
+msgid "<select>"
+msgstr ""
+
+#: include/statistics_single.admin.inc:28
+msgid "Political affiliation"
+msgstr ""
+
+#: include/statistics_single.admin.inc:32
+msgid "Actor type"
+msgstr ""
+
+#: include/statistics_single.admin.inc:34
+msgid "Select actor type"
+msgstr ""
+
+#: include/statistics_single.admin.inc:35
+msgid "<all actors>"
+msgstr ""
+
+#: include/statistics_single.admin.inc:35
+msgid "Perpetrator"
+msgstr ""
+
+#: include/statistics_single.admin.inc:35
+msgid "Witness"
+msgstr ""
+
+#: include/statistics_single.admin.inc:38
+msgid "Case Filters"
+msgstr ""
+
+#: include/statistics_single.admin.inc:40
+msgid "Select case filter"
+msgstr ""
+
+#: include/statistics_single.admin.inc:41;226
+msgid "Reason for Intervention"
+msgstr ""
+
+#: include/statistics_single.admin.inc:41
+msgid "Date of Intervention"
+msgstr ""
+
+#: include/statistics_single.admin.inc:45
+msgid "Case Location"
+msgstr ""
+
+#: include/statistics_single.admin.inc:47
+msgid "Select case location"
+msgstr ""
+
+#: include/statistics_single.admin.inc:53
+msgid "Select case status"
+msgstr ""
+
+#: include/statistics_single.admin.inc:58 include/violation_actor_stats.admin.inc:52
+msgid "Violation Filters"
+msgstr ""
+
+#: include/statistics_single.admin.inc:60 include/violation_actor_stats.admin.inc:55
+msgid "Select violation filter"
+msgstr ""
+
+#: include/statistics_single.admin.inc:61
+msgid "Date(months)"
+msgstr ""
+
+#: include/statistics_single.admin.inc:61
+msgid "Date(years)"
+msgstr ""
+
+#: include/statistics_single.admin.inc:65
+msgid "Violation Location"
+msgstr ""
+
+#: include/statistics_single.admin.inc:67
+msgid "Select violation location"
+msgstr ""
+
+#: include/statistics_single.admin.inc:78
+msgid "Actor Filters"
+msgstr ""
+
+#: include/statistics_single.admin.inc:80
+msgid "Select actor filter"
+msgstr ""
+
+#: include/statistics_single.admin.inc:158;169;183;195;208;518
+msgid "Type"
+msgstr ""
+
+#: include/statistics_single.admin.inc:232
+msgid "Cases by Date of Intervention"
+msgstr ""
+
+#: include/statistics_single.admin.inc:239
+msgid "Cases by Location"
+msgstr ""
+
+#: include/statistics_single.admin.inc:248
+msgid "Case Names"
+msgstr ""
+
+#: include/statistics_single.admin.inc:263
+msgid "Standard"
+msgstr ""
+
+#: include/statistics_single.admin.inc:364
+msgid "Cases by Status"
+msgstr ""
+
+#: include/statistics_single.admin.inc:445
+msgid "Cases by Reason for Intervention"
+msgstr ""
+
+#: include/statistics_single.admin.inc:477;784
+msgid "amount"
+msgstr ""
+
+#: include/statistics_single.admin.inc:480
+msgid "Cases by Date"
+msgstr ""
+
+#: include/statistics_single.admin.inc:521
+msgid "Actors by Type"
+msgstr ""
+
+#: include/statistics_single.admin.inc:566
+msgid "Actors by gender"
+msgstr ""
+
+#: include/statistics_single.admin.inc:623
+msgid "Actors by Age"
+msgstr ""
+
+#: include/statistics_single.admin.inc:673
+msgid "Actors by Ethnicity"
+msgstr ""
+
+#: include/statistics_single.admin.inc:750
+msgid "Violations by Case"
+msgstr ""
+
+#: include/statistics_single.admin.inc:762
+msgid "year"
+msgstr ""
+
+#: include/statistics_single.admin.inc:766
+msgid "month"
+msgstr ""
+
+#: include/statistics_single.admin.inc:786
+msgid "Violations by Date"
+msgstr ""
+
+#: include/statistics_single.admin.inc:822
+msgid "Violations by International Standard"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:56
+msgid "Total Violations"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:56
+msgid "Date (Years)"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:56;76
+msgid "International Standard"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:60
+msgid "Victim Options"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:62
+msgid "Select victim filter"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:65
+msgid "Select Victim Filter"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:66
+msgid "Victim Age"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:67
+msgid "Victim Ethnicity"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:68
+msgid "Victim Gender"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:69
+msgid "Victim Political Affiliation"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:78
+msgid "Select International Standard"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:320
+msgid "Violation Victims by Age"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:322
+msgid "Age Groups"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:334
+msgid "Violation Victims by Gender"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:347
+msgid "Violation Victims by Ethnicity"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:359
+msgid "Violation Victims by Affiliation"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:370;372
+msgid "International Standard "
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:386
+msgid "Violation Victims by International Standard"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:386
+msgid "vs Gender"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:396
+msgid "Violation Victims by Date vs Ethnicity"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:406
+msgid "Violation Victims by Date vs Gender"
+msgstr ""
+
+#: include/violation_actor_stats.admin.inc:416
+msgid "Violation Victims by Date vs Political Affiliation"
+msgstr ""
+
+#: modules/debaser2_interface/debaser2_interface.module:58
+msgid "administer debaser"
+msgstr ""
+
+#: modules/debaser2_interface/debaser2_interface.module:29
+msgid "rightscase admin"
+msgstr ""
+
+#: modules/debaser2_interface/debaser2_interface.module:31
+msgid "A page to link to the proup add user pages"
+msgstr ""
+
+#: modules/debaser2_interface/debaser2_interface.info:0
+msgid "debaser2_interface"
+msgstr ""
+
+#: modules/debaser2_interface/debaser2_interface.info:0
+msgid "create some admin pages"
+msgstr ""
+
+#: modules/debaser2_interface/theme/debaser2-interface-dashboard-groups.tpl.php:11
+msgid "Add user to group : "
+msgstr ""
+
+#: theme/actor-page.tpl.php:49
+msgid "Name"
+msgstr ""
+
+#: theme/actor-page.tpl.php:57
+msgid "Date of Birth"
+msgstr ""
+
+#: theme/actor-page.tpl.php:65
+msgid "Date Of Death"
+msgstr ""
+
+#: theme/actor-page.tpl.php:89
+msgid "State"
+msgstr ""
+
+#: theme/actor-page.tpl.php:99
+msgid "Non State"
+msgstr ""
+
+#: theme/actor-page.tpl.php:125
+msgid "ID Type"
+msgstr ""
+
+#: theme/actor-page.tpl.php:133
+msgid "Number"
+msgstr ""
+
+#: theme/actor-page.tpl.php:142
+msgid "Contact Details"
+msgstr ""
+
+#: theme/actor-page.tpl.php:164
+msgid "Files"
+msgstr ""
+
+#: theme/actor-page.tpl.php:169
+msgid "Testimony"
+msgstr ""
+
+#: theme/actor-page.tpl.php:173
+msgid "Expected Outcome"
+msgstr ""
+
+#: theme/actor-page.tpl.php:193
+msgid "Edit"
+msgstr ""
+
+#: theme/actor-page.tpl.php:202
+msgid "Add"
+msgstr ""
+
+#: theme/actor-page.tpl.php:210 theme/vio-page.tpl.php:117
+msgid "Printer View"
+msgstr ""
+
+#: theme/vio-page.tpl.php:43
+msgid "International Law"
+msgstr ""
+
+#: theme/vio-page.tpl.php:59
+msgid "Violation Start Date"
+msgstr ""
+
+#: theme/vio-page.tpl.php:67
+msgid "Violation End Date"
+msgstr ""
+
+#: theme/vio-page.tpl.php:101
+msgid "Chain of Events"
+msgstr ""
+
+#: theme/vio-page.tpl.php:108
+msgid "Edit Violation"
+msgstr ""
+
+#: theme/vio-page.tpl.php:113
+msgid "Add Violation"
+msgstr ""
+

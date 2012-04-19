@@ -1,0 +1,47 @@
+9
+
+dir
+2
+svn://192.168.55.93/home/debaser2/svnrepos/public_html/sites/all/themes/ninesixty/extras/templates
+svn://192.168.55.93/home/debaser2/svnrepos
+
+
+
+2009-09-18T12:36:28.814752Z
+2
+cormac
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+
+fireworks
+dir
+
+omnigraffle
+dir
+
+photoshop
+dir
+
+visio
+dir
+

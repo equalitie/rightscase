@@ -1,0 +1,20 @@
+<?php
+// $Id: cache_disable.module,v 1.1 2008/02/20 23:57:21 dmitrig01 Exp $
+
+if (!function_exists('cache_get')) {
+  function cache_get($key, $table = 'cache') {
+    return FALSE;
+  }
+  function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
+    return;
+  }
+  function cache_clear_all($cid = NULL, $table = NULL, $wildcard = FALSE) {
+    return;
+  }    
+}
+function cache_disable_enable() {
+  variable_set('cache_inc', './'. drupal_get_path('module', 'cache_disable') .'/cache_disable.module');
+}
+function cache_disable_disable() {
+  variable_del('cache_inc');
+}

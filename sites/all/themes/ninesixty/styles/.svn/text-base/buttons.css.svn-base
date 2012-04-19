@@ -1,0 +1,35 @@
+.clear { /* generic container (i.e. div) for floating buttons */
+    overflow: hidden;
+    width: 100%;
+}
+
+a.button {
+    background: transparent url('../images/button_sprite_02.gif') no-repeat scroll top right;
+    color: white;
+    display: block;
+    float: left;
+    font: bold small-caps 12px arial, sans-serif;
+    height: 24px;
+    margin-left: 6px;
+    padding-right: 12px; /* sliding doors padding */
+    text-decoration: none;
+}
+
+a.button span {
+    background: transparent url('../images/button_sprite_01.gif') no-repeat;
+    display: block;
+    line-height: 14px;
+    padding: 5px 0 5px 13px;
+} 
+
+a.button:active, a.button:hover {
+    background-position: bottom right;
+    color: #fff;
+    outline: none; /* hide dotted outline in Firefox */
+}
+
+a.button:active span, a.button:hover span {
+    background-position: bottom left;
+    padding: 6px 0 4px 13px; /* push text down 1px */
+	
+}

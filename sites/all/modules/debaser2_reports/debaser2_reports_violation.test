@@ -1,0 +1,657 @@
+<?php
+/*******************************************************************************************************************
+Created By    : Davi Tapajos
+Creation Date : 14/11/2011
+Description   : Implements tests to ensure that queries related to cases, will be correct.
+site.
+
+Updated By    :
+Update Date   :
+Description   :
+
+*******************************************************************************************************************/
+
+class DebaserReportsViolationsTestCase extends DrupalWebTestCase{
+
+  /**
+   *
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Debaser Reports - Violations'),
+      'description' => t('Test the violation statistics'),
+      'group' => t('debaser'),
+    );
+  }
+
+  /**
+   * setUp() performs any pre-requisite tasks that need to happen.
+   */
+  public function setUp() {
+    // Enable any modules required for the test.
+    parent::setUp(
+      'debaser2_reports'
+    );
+    
+    $path = drupal_get_path( 'module', 'debaser2_reports' );
+    include_once( $path . '/helper/debaser2_reports.report.inc' );
+    include_once( $path . '/helper/debaser2_reports_func_matrix.report.inc' );
+    include_once( $path . '/queries/debaser2_reports_violations_queries.inc' );
+  }
+
+  /**
+   *
+   */
+  public function test_tables_creation(){
+    $tables = $this->_get_tables_list();
+
+    foreach($tables as $table_name => $fields) {
+      $sql = 'SELECT ';
+      $i = 1;
+      $count = count($fields);
+      foreach($fields as $field) {
+        $sql .= $field;
+        $sql .= $count == $i ? ' ' : ', ';
+        $i++;
+      }
+      $sql .= ' FROM {%s}';
+      $result = db_query($sql, $table_name);
+      $this->assertTrue($result, t("All ok with table !table", array("!table" => $table_name) ) );
+    }
+
+  }
+
+
+/********************************************************************************************
+
+                        TEST VIOLATION CASE STATUS
+
+********************************************************************************************/
+/**
+ * Violation case status x lcoation - without group, without location
+ */
+public function test_violation_by_case_status_without_group_without_location() {
+    $this->_insert_violations();
+    $query_function = debaser2_reports_violation_functions(1, 'nolocation', 'query');
+    $results = $query_function();
+
+    //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+    foreach($results as $status => $locations){
+        foreach($locations as $location => $count){
+          switch ($status) {
+            case 'case_status_1':
+              switch($location) {
+                case 'location_1': $expected = 1; break;
+                case 'location_2': $expected = 0; break;
+                case 'location_3': $expected = 1; break;
+              } // case_status_1
+              break;
+            case 'case_status_2':
+              switch($location) {
+                case 'location_1': $expected = 1; break;
+                case 'location_2': $expected = 2; break;
+                case 'location_3': $expected = 2; break;
+              } // case_status_2
+              break;
+            case 'case_status_3':
+              switch($location) {
+                case 'location_1': $expected = 1; break;
+                case 'location_2': $expected = 1; break;
+                case 'location_3': $expected = 1; break;
+              } // case_status_3
+              break;
+          } // switch age_range
+          $message = $status . ' in ' . $location;
+          $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+        }
+      }
+}
+
+/**
+ * Violation case status x location - without group, with location
+ */
+public function test_violation_by_case_status_without_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(1, 'location', 'query');
+  $results = $query_function(NULL, 1);
+  $location = 'location_1';
+
+  foreach($results as $status => $locations){
+    switch ($status) {
+      case 'case_status_1': $expected = 1; break;
+      case 'case_status_2': $expected = 1; break;
+      case 'case_status_3': $expected = 1; break;
+    }
+    $message = $status . ' in ' . $location;
+    $count = $results[$status][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+/**
+ * Violation case status x location - with group, without location
+ */
+public function test_violation_by_case_status_with_group_without_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(1, 'nolocation', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  foreach($results as $status => $locations){
+    foreach($locations as $location => $count){
+      switch ($status) {
+        case 'case_status_1':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_1
+          break;
+        case 'case_status_2':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_2
+          break;
+        case 'case_status_3':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 1; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $status . ' in ' . $location . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Violation case status x location -  with group, with location
+ */
+
+public function test_violatio_by_status_with_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(1, 'location', 'query');
+  $results = $query_function(1100, 3);
+  $location = 'location_3';
+
+  foreach($results as $status => $locations){
+    switch ($status) {
+      case 'case_status_1': $expected = 0; break;
+      case 'case_status_2': $expected = 2; break;
+      case 'case_status_3': $expected = 1; break;
+    }
+    $message = $status . ' in ' . $location;
+    $count = $results[$status][$location];
+    $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+  }
+}
+
+
+/**
+ * Violation month x logation - without group, without location
+ */
+public function test_violation_by_case_month_without_group_without_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(2, 'nolocation', 'query');
+  $results = $query_function();
+
+  //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+  // NOTE: inverted order of foreach
+  foreach($results as $location => $dates){
+    foreach($dates as $date => $count){
+      switch ($date) {
+        case '12/2010':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 1; break;
+          } // case_status_1
+          break;
+        case '1/2011':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_2
+          break;
+        case '5/2011':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $date . ' in ' . $location;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Violation month x lcoation -  without group, with location
+ */
+public function test_violation_by_case_month_without_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(2, 'location', 'query');
+  $results = $query_function(NULL, 3);
+
+  //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+  $location = 'location_3';
+
+  $known_results = array(
+    $location => array(
+      '12/2010' => 1,
+      '1/2011' => 2,
+      '5/2011' => 0,
+    ),
+  ); 
+  
+  foreach($results as $result_locations => $result_location){
+    foreach($result_location as $date => $count){
+      $message = $date . ' in ' . $location;
+      $expected = $known_results[$location][$date];
+      $message_ir = 'searched for ' . $location;
+      $this->assertEqual($result_locations, $location, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $location, '!count' => $result_locations) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+  
+}
+
+/**
+ * Violation month x location -  with group, without location
+ */
+public function test_violation_by_case_month_with_group_without_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(2, 'nolocation', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  foreach($results as $location => $subs){
+    foreach($subs as $date  => $count){
+      switch ($date) {
+        case '12/2010':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_1
+          break;
+        case '1/2011':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_2
+          break;
+        case '5/2011':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $date . ' in ' . $location . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Violation month x location -  with group, with location
+ */
+public function test_violation_by_case_month_with_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(2, 'location', 'query');
+  $results = $query_function(1100, 3);
+
+  $location = 'location_3';
+
+  $known_results = array(
+    $location => array(
+      '3/2009' => 0,
+      '4/2009' => 0,
+      '5/2010' => 1,
+      '9/2010' => 0,
+      '12/2010' => 0,
+      '1/2011' => 2,
+      '5/2011' => 0,
+    ),
+  ); 
+  
+  foreach($results as $result_locations => $result_location){
+    foreach($result_location as $date => $count){
+      $message = $date . ' in ' . $location;
+      $expected = $known_results[$location][$date];
+      $message_ir = 'searched for ' . $location;
+      $this->assertEqual($result_locations, $location, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $location, '!count' => $result_locations) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+  
+}
+
+/**
+ * Violation year x location - without group, without location
+ */
+public function test_violation_by_case_year_without_group_without_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(3, 'nolocation', 'query');
+  $results = $query_function();
+
+  //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+  
+  foreach($results as $location => $subs){
+    foreach($subs as $year => $count){
+      switch ($year) {
+        case '2009':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_1
+          break;
+        case '2010':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_2
+          break;
+        case '2011':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+         $message = $year . ' in ' . $location;
+         $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/**
+ * Violation year x location -  without group, with location
+ */
+public function test_violation_by_case_year_without_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(3, 'location', 'query');
+  $results = $query_function(NULL, 2);
+
+  $location = 'location_2';
+
+  $known_results = array(
+    $location => array(
+      '2009' => 1,
+      '2010' => 1,
+      '2011' => 1,
+    ),
+  ); 
+  
+  foreach($results as $result_locations => $result_location){
+    foreach($result_location as $date => $count){
+      $message = $date . ' in ' . $location;
+      $expected = $known_results[$location][$date];
+      $message_ir = 'searched for ' . $location;
+      $this->assertEqual($result_locations, $location, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $location, '!count' => $result_locations) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+  
+}
+
+/**
+ * Violation year with group, without location
+ */
+public function test_violation_by_case_year_with_group_without_location() {
+$this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(3, 'nolocation', 'query');
+
+  $group = 1100;
+  $results = $query_function($group);
+
+  //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+  foreach($results as $location => $years){
+    foreach($years as $year => $count){
+      switch ($year) {
+        case '2009':
+          switch($location) {
+            case 'location_1': $expected = 1; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 0; break;
+          } // case_status_1
+          break;
+        case '2010':
+          switch($location) {
+            case 'location_1': $expected = 0; break;
+            case 'location_2': $expected = 1; break;
+            case 'location_3': $expected = 1; break;
+          } // case_status_2
+          break;
+        case '2011':
+          switch($location) {
+            case 'location_1': $expected = 2; break;
+            case 'location_2': $expected = 0; break;
+            case 'location_3': $expected = 2; break;
+          } // case_status_3
+          break;
+      } // switch age_range
+      $message = $year . ' in ' . $location . ' in the group ' . $group;
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+}
+
+/**
+ * Violation year x location -  with group, with location
+ */
+public function test_violation_by_case_year_with_group_with_location() {
+  $this->_insert_violations();
+  $query_function = debaser2_reports_violation_functions(3, 'location', 'query');
+  $results = $query_function(1100, 3);
+
+  //$this->fail('<pre>' . print_r($results, true) . '</pre>');
+
+  $location = 'location_3';
+
+  $known_results = array(
+    $location => array(
+      '2009' => 0,
+      '2010' => 1,
+      '2011' => 2,
+    ),
+  ); 
+  
+  foreach($results as $result_locations => $result_location){
+    foreach($result_location as $date => $count){
+      $message = $date . ' in ' . $location;
+      $expected = $known_results[$location][$date];
+      $message_ir = 'searched for ' . $location;
+      $this->assertEqual($result_locations, $location, t('!message | result: !count | expected: !expected', array('!message' => $message_ir, '!expected' => $location, '!count' => $result_locations) ) );
+      $this->assertEqual($count, $expected, t('!message | result: !count | expected: !expected', array('!message' => $message, '!expected' => $expected, '!count' => $count) ) );
+    }
+  }
+
+}
+
+/********************************************************************************************
+
+                        FUNCTIONS TO HELP TESTS
+
+********************************************************************************************/
+
+  /**
+   * Insert dummy data into new report tables
+   */
+  private function _insert_violations() {
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_1');"); // 1
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_2');"); // 2
+    db_query("INSERT INTO {debaser2_location} VALUES (NULL, 'location_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_1');"); // 1
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_2');"); // 2
+    db_query("INSERT INTO {debaser2_case_status} VALUES (NULL, 'case_status_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_violation_type} VALUES (NULL, 'vio_type_1');"); // 1
+    db_query("INSERT INTO {debaser2_violation_type} VALUES (NULL, 'vio_type_2');"); // 2
+    db_query("INSERT INTO {debaser2_violation_type} VALUES (NULL, 'vio_type_3');"); // 3
+
+    db_query("INSERT INTO {debaser2_violation_international_standard} VALUES (NULL, 'int_standard_1');"); // 1
+    db_query("INSERT INTO {debaser2_violation_international_standard} VALUES (NULL, 'int_standard_2');"); // 2
+    db_query("INSERT INTO {debaser2_violation_international_standard} VALUES (NULL, 'int_standard_3');"); // 3
+
+    // day, month, year
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 20, 03, 2009);"); // 1 
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 21, 04, 2009);"); // 2 
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 12, 05, 2010);"); // 3 0
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 19, 09, 2010);"); // 4
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 22, 12, 2010);"); // 5
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 04, 01, 2011);"); // 6
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 03, 05, 2011);"); // 7
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 04, 05, 2011);"); // 8
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 30, 05, 2011);"); // 9
+    db_query("INSERT INTO {debaser2_violation_date} VALUES (NULL, 15, 01, 2011);"); // 10
+
+    // 'id', 'total_victims', 'total_perpetrators', 'total_witnesses', 'case_id', 'group_id', 'debaser2_location_id', 'debaser2_violation_date_id', 'debaser2_violation_case_status_id', 'debaser2_violation_type_id', 'debaser2_violation_international_standard_id',
+    //                                                                      G   L  D    S
+    //                                                                      *   *  *    *
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 1, 2, 1, 1,  1100, 1, 1,   1, 1, 3);"); // 1 * 03/2009
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 4, 1, 0, 2,  1300, 2, 2,   3, 2, 2);"); // 2   04/2009
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 3, 2, 1, 3,  1100, 3, 3,   2, 3, 2);"); // 3   05/2010
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 2, 2, 2, 4,  1100, 2, 4,   2, 3, 2);"); // 4   09/2010
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 1, 1, 1, 5,  1200, 3, 5,   1, 3, 3);"); // 5 * 12/2010
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 3, 1, 0, 6,  1100, 3, 6,   2, 2, 1);"); // 6   01/2011
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 4, 2, 0, 7,  1100, 1, 7,   3, 1, 1);"); // 7   05/2011
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 3, 1, 3, 8,  1300, 2, 8,   2, 1, 1);"); // 8   05/2011
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 4, 1, 3, 9,  1100, 1, 9,   2, 2, 2);"); // 9   05/2011
+    db_query("INSERT INTO {debaser2_violation} VALUES (NULL, 4, 2, 1, 10, 1100, 3, 10,  3, 3, 1);"); // 10  01/2011
+  }
+
+  /**
+   *
+   */
+  private function _get_tables_list() {
+    $tables = array(
+      'debaser2_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'case_id',
+        'group_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_actor_ethnicity' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_gender' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_political_affiliation' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_actor_type' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case' => array (
+        'id',
+        'title',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'total_violations',
+        'group_id',
+        'debaser2_case_status_id',
+        'debaser2_location_id',
+        'debaser2_case_date_id',
+        'debaser2_case_intervention_reason_id',
+      ),
+      'debaser2_case_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_case_intervention_reason' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_case_status' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_location' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation' => array (
+        'id',
+        'total_victims',
+        'total_perpetrators',
+        'total_witnesses',
+        'case_id',
+        'group_id',
+        'debaser2_location_id',
+        'debaser2_violation_date_id',
+        'debaser2_violation_case_status_id',
+        'debaser2_violation_type_id',
+        'debaser2_violation_international_standard_id',
+      ),
+      'debaser2_violation_actor' => array (
+        'id',
+        'age',
+        'age_0_18',
+        'age_19_35',
+        'age_36_54',
+        'age_55_more',
+        'debaser2_violation_id',
+        'debaser2_actor_ethnicity_id',
+        'debaser2_actor_political_affiliation_id',
+        'debaser2_actor_type_id',
+        'debaser2_actor_gender_id',
+      ),
+      'debaser2_violation_date' => array (
+        'id',
+        'day',
+        'month',
+        'year',
+      ),
+      'debaser2_violation_international_standard' => array (
+        'id',
+        'title',
+      ),
+      'debaser2_violation_type' => array (
+        'id',
+        'title',
+      ),
+    );
+
+    return $tables;
+  }
+}
+

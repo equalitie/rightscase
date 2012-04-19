@@ -1,0 +1,53 @@
+9
+
+dir
+3
+svn://192.168.55.93/home/debaser2/svnrepos/public_html/sites/all/libraries/ckeditor/_source
+svn://192.168.55.93/home/debaser2/svnrepos
+
+
+
+2009-09-18T13:03:43.537795Z
+3
+cormac
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+
+lang
+dir
+
+plugins
+dir
+
+tests
+dir
+
+themes
+dir
+
+skins
+dir
+
+core
+dir
+

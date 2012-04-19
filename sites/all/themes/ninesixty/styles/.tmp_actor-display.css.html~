@@ -1,0 +1,392 @@
+<html><h1>The H1 tag looks like this</h1>
+<p>The paragraph tag after an H1 tag looks like this</p>
+<h2>The H2 tag looks like this</h2>
+<p>The paragraph tag after an H2 tag looks like this</p>
+<h3>The H1 tag looks like this</h3>
+<p>The paragraph tag after an H3 tag looks like this</p>
+<h4>The H4 tag looks like this</h4>
+<p>The paragraph tag after an H4 tag looks like this</p>
+<h5>The H5 tag looks like this</h5>
+<p>The paragraph tag after an H5 tag looks like this</p>
+<ol>
+<li><strong>This is a strong element in an ordered list</strong></li>
+<li><i>This is an italic element in an ordered list</i></li>
+<li><b>This is a bold element in an ordered list</b></li>
+<li><em>This is an emphasized element in an ordered list</em></li>
+<li>This is a regular element in an ordered list</li>
+</ol>
+<ul>
+<li><strong>This is a strong element in an unordered list</strong></li>
+<li><i>This is an italic element in an unordered list</i></li>
+<li><b>This is a bold element in an unordered list</b></li>
+<li><em>This is an emphasized element in an unordered list</em></li>
+<li>This is a regular element in an unordered list</li>
+</ul>
+<blockquote>The block quote element looks like this</blockquote>
+<pre>The pre element looks like this</pre>
+<code>The code element looks like this</code>
+<br/>
+<span>The span element looks like this</span>
+<br/>
+<a href="#">The anchor element looks like this</a>
+<br/>
+<br/>
+<div style="float:left;margin:20px;width:200px;">Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.  Text inside a div that is 200 pixels wide looks like this.</div>
+<div style="float:left;margin:20px;width:400px;">Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.  Text inside a div that is 400 pixels wide looks like this.</div>
+<div style="float:left;margin:20px;width:600px;">Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.  Text inside a div that is 600 pixels wide looks like this.</div><style>/**
+ * ACTOR PAGER STYLING
+ * 
+ */
+.view-cycle-pager li{
+	list-style:none !important;
+	list-style-type:none;
+	/*border:1px solid black;*/
+	margin-left:0px !important;
+	text-align: left;
+	width:100px;
+	border-right:0px;
+}
+
+.views-cycle-container li{
+	list-style:none !important;
+	list-style-type:none;
+	
+	margin-left:0px !important;
+	
+}
+/************************************* VIEWS CYCLE PAGER CSS **************************************/
+.view-cycle-pager li a{
+	text-decoration :none;
+	margin:5px;
+	width:100px !important;
+	color:#000;
+	font: 900 12px "Arial", Helvetica, sans-serif;
+	
+	}
+	
+
+.view-cycle-pager li a.activeSlide{
+	color:#000;
+}
+
+.view-cycle-pager li a:hover{
+	color:#000;
+	
+}
+		
+.views-cycle-container{
+	float:left;
+	padding-left:8px !important;
+}
+
+.sideTab{
+	width:148px;
+	
+	/*background: url(../images/side_tab_bg.gif) repeat-y;*/
+	padding-top:5px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-weight:bold;
+	margin-left:-6px;
+	
+	
+}
+
+.sideTab-bottom{
+	width:148px;
+	height: 200px;
+	border-right: 1px #bbbbbb solid;
+	clear:left;
+}
+.sideTab-bottom-actor{
+	width:159px;
+	height: 200px;
+	border-right: 1px #bbbbbb solid;
+	clear:left;
+}
+
+.sideTabHeader{
+	height:30px;
+	width:100%;	
+	text-align:center;
+	vertical-align:middle;
+	border-bottom:1px solid #bbbbbb !important;
+	background:url(../images/fadedline.gif) no-repeat bottom right;
+	
+}
+
+ul.view-cycle-pager{
+	margin:0px;
+	padding:0px;	
+}
+
+ul.view-cycle-pager li{
+	margin:0 0 0 0px;
+	padding:8px 0 0 12px;
+	height:29px;
+	list-style:none;
+	width:136px;
+	border: 1px #bbbbbb;
+	border-style:none solid solid none;
+	background-color:#e6e6e6;
+}
+
+ul.view-cycle-pager li:hover, ul.view-cycle-pager li.current {
+	width:136px;
+	color: #000000;
+	border-right:none;
+	background-color:#fff;
+}
+
+ul.view-cycle-pager li.activeSlide{
+	width:100%;
+	color: #000;
+	background-color:#fff;
+	border-right:none;
+	width:136px;
+}
+
+
+/*********************************************************************************************/
+
+/***** EMPTY TEXT ******/
+.empty-text{
+	margin-top: 30px;
+	text-align:center;
+}
+.empty a{
+	align:center;
+	margin-left:-515px;
+}
+
+.left-violation-content{
+	padding-left:8px;
+}
+.view-cycle-pager{
+	float:left;
+}
+
+
+.right-content{
+	/*background-color:#ff9999;*/
+	min-height:300px;
+	margin:0;
+}
+
+.left-content{
+	/*background-color:#99ff99;*/
+	min-height:300px;
+}
+
+.actor-photo-spacer{
+	min-height:105px;
+	/*background-color:#9999ff;*/
+	margin:0;
+}
+
+.actor-photo{
+	margin-top:15px;
+	min-height:105px;
+	/*background-color:#ff9999;*/
+	
+}
+
+.actor-photo img{
+	border:2px solid black;
+}
+
+.actor-table-spacer{
+	min-height:35px;
+	/*background-color:#ff9999;*/
+	margin:0px;
+}
+
+.actor-details-table{
+	min-height:155px;
+	/*background-color:#ff9999;*/
+	margin:-10px;
+}
+/**
+ * RIGHT SIDE CONTENT
+ */
+.right-actor-content{
+	margin:0px;
+}
+
+.right-actor-table{
+	margin:0px;
+}
+.testimony-header{
+	margin-top:8px;
+	font-weight:bold;
+}
+
+.testimony-textarea{
+	border: 1px solid #bbbbbb;
+	padding:5px;
+	height: 165px;
+	margin-left:-1px;
+	margin-top:8px;
+	overflow:auto;
+}
+
+.right-actor-table{
+	margin-top: 15px;
+	
+}
+
+/*
+ * no actor css
+ */
+.view-empty{
+	min-height:400px;
+	/*background-color:#99ff99;*/
+}
+
+/**
+ * TABLES
+ * note: odd even colours inherited from case-display.css
+ */
+.actor-tables td, .right-actor-table td{
+	padding-left:8px;
+	padding-right:8px;
+	padding-left:3px;
+	padding-left:3px;
+	border: 1px solid black;
+	
+}
+
+.right-actor-table table{
+max-height:75px;
+width:520px;
+overflow:auto;	
+}
+
+.actor-tables th{
+	background-color:#bbbbbb;
+	border: 1px solid black;
+}
+
+.actor-tables th a{
+	text-decoration:none;
+	color:black;
+	}
+	
+.actor-table-details{
+	width:145px;
+}
+
+.actor-table-labels{
+	width:125px;
+}
+/******************************** ACTOR FILES ************************/
+#actor-file-display{
+	border: 1px solid #BBBBBB;
+	margin-left:-1px;
+	padding:8px;
+	width:443px;
+	clear:both;
+	min-height:120px;
+	max-height:120px;
+	overflow-y:scroll;
+}
+
+#actor-file-display a, #actor-file-display a:visited{
+	color:#339BE0;
+	font-weight:bold;
+	text-decoration:none;
+	line-height:2em;
+}
+#actor-file-display a:hover{
+	text-decoration:underline;
+}
+/**
+ * BUTTONS
+ */
+.button-holder{
+	/*background-color:#99ff99;*/
+	min-height:20px;
+	margin:15px 0px 10px 0px;
+	/*margin-top:15px;
+	margin-left:0px*/
+}
+.actor-button-spacer{
+	/*background-color:red;*/
+	min-height:20px;
+	margin:0px;
+}
+
+.actor-edit-button{
+		background-color:#5EB0E2;
+}
+
+
+
+/**************************************************************************************************************************************
+ * VIOLATION PAGE STYLING
+ */
+
+.violation-details-label{
+	font-weight:bold;
+	color:#000;
+}
+.violation-table-spacer{
+	min-height:13px;
+	/*background-color:#ff9999;*/
+	margin:0px;
+	margin-top:9px;
+}
+
+.left-violation-content{
+	margin-left:-10px;
+}
+
+.vio-field-wrapper{
+	margin-top:8px;
+	border-bottom:1px solid #e6e6e6;
+	padding-bottom: 8px
+}
+/*
+.violation-details-content{
+	margin-top:8px;
+	border-bottom:1px solid #bbbbbb;
+}*/
+
+.violation-details{
+	margin:0px;
+}
+
+.violation-textarea{
+	border: 1px solid #bbbbbb;
+	padding:5px;
+	height: 230px;
+	margin-left:-1px;
+	margin-top:8px;
+	overflow:auto;
+	
+}
+.button-spacer{
+	min-height:15px;
+}
+td{
+	border: 1px solid #b3b3b3;
+}
+
+.vio-tab{
+	position:relative;
+	width:150px ! important;
+	
+	background-color:#fff ! important;
+	
+}
+#views-cycle-case_actors-page_1-nav li, #views-cycle-case_actors-page_2-nav li, #views-cycle-case_actors-page_3-nav li,
+#views-cycle-case_actors-page_4-nav li
+{
+	position:relative;
+	
+	width:147px !important;
+}
+
+/****************************** FILE PAGE STYLING ************************************************************/
+.view-content-files{
+	margin-top:16px;
+}</style></html>
