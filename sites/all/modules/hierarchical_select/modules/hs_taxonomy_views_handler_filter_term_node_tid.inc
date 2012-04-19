@@ -1,5 +1,4 @@
 <?php
-// $Id: hs_taxonomy_views_handler_filter_term_node_tid.inc,v 1.5 2010/07/07 11:05:32 wimleers Exp $
 
 /**
  * @file
@@ -35,7 +34,7 @@ class hs_taxonomy_views_handler_filter_term_node_tid extends views_handler_filte
     // Support limiting of vocabulary by the vocabulary's module name (this is
     // possible when a vocabulary is exported/defined as a feature, see
     // http://drupal.org/node/789556) or by the vocabulary's vid.
-    if ($this->options['limit_by'] == 'module') {
+    if (isset($this->options['limit_by']) && $this->options['limit_by'] == 'module') {
       foreach (taxonomy_get_vocabularies() as $vid => $vocab) {
         if ($vocab->module == $this->options['module']) {
           $vocabulary = $vocab;

@@ -1,5 +1,4 @@
 <?php
-// $Id: hs_menu.module,v 1.14 2009/10/30 18:50:37 wimleers Exp $
 
 /**
  * @file
@@ -28,7 +27,7 @@ function hs_menu_menu() {
 /**
  * Implementation of hook_form_alter().
  */
-function hs_menu_form_alter(&$form, &$form_state, $form_id) {
+function hs_menu_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['type']['#value']) && $form['type']['#value'] .'_node_form' == $form_id && isset($form['menu']['parent']) && $form['menu']['#access']) {
     unset($form['menu']['parent']['#options']);
     $form['menu']['parent']['#type'] = 'hierarchical_select';
