@@ -1,4 +1,0 @@
-<?php
-if($teaser){
-	echo "hello";
-}

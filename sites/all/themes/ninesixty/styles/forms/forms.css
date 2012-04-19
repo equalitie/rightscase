@@ -93,7 +93,7 @@ textarea{
 #edit-field-case-applicant-name-0-value{
  	float:left;
  	width:220px;
-  margin-left:55px;
+  margin-left:58px;
 }
 
 #edit-field-case-date-0-value-datepicker-popup-0{
@@ -106,8 +106,17 @@ textarea{
 	margin-left:56px;
 	width:226px;
 }
-
-
+#edit-taxonomy-3-wrapper select{
+   float: right;
+   margin-right:14px; 
+}
+ label.hierarchical-select-3-wrapper {
+   float: left;
+ }
+ .hierarchical-select-wrapper-for-name-edit-taxonomy-2 {
+   float: right;
+   margin-right: 8px;
+ }
 .case-region .hierarchical-select{
 	float:left;
 	margin-left: 69px;

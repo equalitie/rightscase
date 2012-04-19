@@ -23,9 +23,7 @@ global $base_url;
 
         <div id="site-header" class="clear-block">
           <div id="branding" class="grid-3 clear-block">
-            <?php if ($linked_logo_img): ?> 
-              <span id="logo" class="grid-1 alpha"><?php print $linked_logo_img; ?></span>
-            <?php endif; ?>
+            <span id="logo" class="grid-1 alpha"><img src="/<?php echo $directory; ?>/images/rcase_SOFTWARE.png" alt="Home" title="Home" width="154" height="40"></span>
             <?php if ($linked_site_name): ?>
             <!--<h1 id="site-name" class="grid-3 omega"><?php print $linked_site_name; ?></h1>-->
             <?php endif; ?>
