@@ -8,6 +8,7 @@ write out all our variables to nice easy to read format
 foreach ($actor as $variable => $value){
   $$variable = $value;
 }
+dpm($photo);
 $prefix = ($_SERVER['HTTPS']) ? 'https' : 'http';
 /*
 Available Variables
@@ -35,7 +36,7 @@ Available Variables
 
         
         <div class="actor-photo ">
-            <img src="<?php print $prefix; ?>://<?php print $img_path; ?>" alt="actor photo" />
+            <? print theme('imagecache', 'actor_thumbnail', $photo); ?>
         </div>
 
     <?php endif;?>

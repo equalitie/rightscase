@@ -156,6 +156,7 @@ function debaser2_date_diff($dformat, $endDate, $beginDate)
 
 function debaser2_get_actor( $nid, $case_id, $page ){
   $actor_node = node_load( $nid );
+  $prefix = ($_SERVER['HTTPS']) ? 'https' : 'http';
   //dpm( $actor_node );
   /*$ethnicity = implode( get_terms_from_node_by_vid( $actor_node, ETHNICITY) );
   $affiliation = implode( get_terms_from_node_by_vid( $actor_node, AFFILIATION ) );*/
@@ -202,14 +203,7 @@ function debaser2_get_actor( $nid, $case_id, $page ){
   $files="";
   $photo = $actor_node->field_actor_photo[0]['filepath'];
   //dprint_r ($actor_node);
-  //dpm( $photo );
-  if( !file_exists( $photo ) ){
-    $img_path = $_SERVER['HTTP_HOST'].'/'.str_ireplace('files', 'files/imagefield_thumbs', $photo);
-
-  }else{
-   $img_path = $_SERVER['HTTP_HOST'] .'/'. $photo;
-   
-  }
+  dpm( $photo );
 
   $gender = $actor_node->field_gender[0]['value'];
   
@@ -217,7 +211,7 @@ function debaser2_get_actor( $nid, $case_id, $page ){
   // if(!$contact_details)$contact_details = "N/A";
   $outcome = $actor_node->field_outcome[0]['value'];
   foreach ($actor_node->field_actor_files as $file) {
-	  $files.='<a href=https://'.$_SERVER['HTTP_HOST'].'/'.$file['filepath'].' target="_blank">'.$file['filename']."</a><br/>";
+	  $files.='<a href='. $prefix . '://'.$_SERVER['HTTP_HOST'].'/'.$file['filepath'].' target="_blank">'.$file['filename']."</a><br/>";
   }
   
   
@@ -229,6 +223,7 @@ function debaser2_get_actor( $nid, $case_id, $page ){
     'dateOD' => $dateOD,
     'files' => $files,
     'img_path' => $img_path,
+    'photo' => $photo,
     'nid' => $nid,
     'gender' => $gender,
     'age' => $age,
