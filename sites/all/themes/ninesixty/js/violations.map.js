@@ -11,9 +11,9 @@ Drupal.behaviors.violation_map = function(context) {
 
   var markers = Drupal.settings.data.markers; // '.markers; /*<?php echo json_encode($markers); ?>;*/
 
-  var latLng = new google.maps.LatLng(-19.13913474945349, 29.912109375);
+  var latLng = new google.maps.LatLng(0, 0);
   var mapOptions = {
-    zoom: 5,
+    zoom: 1,
     center: latLng,
     panControl: true,
     zoomControl: true,
