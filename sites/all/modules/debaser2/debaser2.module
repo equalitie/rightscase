@@ -45,6 +45,12 @@ function debaser2_menu() {
         'page callback' => 'get_statistics_display',
         'type' => MENU_NORMAL_ITEM,
     );
+    $items['rightscase/manual'] = array(
+        'title' => 'Manual',
+        'access arguments' => array('access content'),
+        'page callback' => 'debaser2_manual_page',
+        'type' => MENU_NORMAL_ITEM,
+    );
 
     /*
      *$items['stats/individual_statistics'] = array(
@@ -114,7 +120,14 @@ function debaser2_menu() {
     return $items;
 }
 
+function debaser2_manual_page(){
+  return theme('debaser2_manual_page');
+}
+
 function debaser2_theme() {
+  $items['debaser2_manual_page'] = array(
+    'template' => 'theme/manual-page',
+  );
   $items['vio_page'] = array(
     'arguments' => array(
       'violation' => null,
