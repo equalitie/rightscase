@@ -45,7 +45,7 @@ global $base_url;
             <li class="menu-1765 two"><a title="" href="/cases"><?=t('Case Details'); ?></a></li>
             <li class="menu-2726 three"><a title="Statistical analysis of data collected" href="/stats/individual_statistics_new"><?=t('Analysis &amp; Statistics'); ?></a></li>
             <li class="menu-645 four"><a title="View the most recently updated content in the application" href="/activity/all"><?=t('Recent Activity'); ?></a></li>
-            <li class="menu-4139 five last"><a title="Debaser User Manual" href="/node/1274"><?=t('Manual'); ?></a></li>
+            <li class="menu-4139 five last"><a title="Debaser User Manual" href="/rightscase/manual"><?=t('Manual'); ?></a></li>
           </ul>	        
           </div>
 

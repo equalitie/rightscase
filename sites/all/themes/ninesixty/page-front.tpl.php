@@ -41,7 +41,7 @@
     <li class="menu-1765 two"><a title="<?=t('Search for Cases'); ?>" href="/cases"><?=t('Case Details'); ?></a></li>
     <li class="menu-2726 three"><a title="<?=t('Statistical analysis of data collected'); ?>" href="/stats/individual_statistics_new"><?=t('Analysis &amp; Statistics'); ?></a></li>
     <li class="menu-645 four"><a title="<?=t('View the most recently updated content in the application'); ?>" href="/activity/all"><?=t('Recent Activity'); ?></a></li>
-    <li class="menu-4139 five last"><a title="<?=t('Debaser User Manual'); ?>" href="/node/1274"><?=t('Manual'); ?></a></li>
+    <li class="menu-4139 five last"><a title="<?=t('Debaser User Manual'); ?>" href="/rightscase/manual"><?=t('Manual'); ?></a></li>
   </ul>	             
 
       </div>
