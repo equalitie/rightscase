@@ -1,34 +1,22 @@
 <div class="toc" style="text-align: left; margin-left: 30px; ">
     <ul id="mozToc" style="font-family: Helvetica,Arial,sans-serif;list-style: none;">
       <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
-      <li><a href="#mozTocId740937">System Architecture</a>
-        <ul>
+       <ul>
           <li><a href="#mozTocId695871">Operational flowchart</a></li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId922878">Creating a case</a>
-        <ul>
+          <li><a href="#mozTocId922878">Creating a case</a></li>
           <li><a href="#mozTocId836753">Case Details</a></li>
           <li><a href="#mozTocId796079">Actors</a></li>
           <li><a href="#mozTocId664564">Violations</a></li>
           <li><a href="#mozTocId256846">Files</a></li>
           <li><a href="#mozTocId558605">Report</a></li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId510270">Search</a></li>
-      <li><a href="#mozTocId803280">Analysis &amp; Statistics</a></li>
-      <li><a href="#mozTocId738330">Security</a>
-        <ul>
+          <li><a href="#mozTocId510270">Search</a></li>
+                <li><a href="#mozTocId803280">Analysis &amp; Statistics</a></li>
+          <li><a href="#mozTocId738330">Security</a>
           <li><a href="#mozTocId516123">Group Permissions</a></li>
           <li><a href="#mozTocId907396">Connection Security</a></li>
-        </ul>
-      </li>
-      <li><a href="#mozTocId505367">Appendix</a>
-        <ul>
+          <li><a href="#mozTocId505367">Appendix</a>
           <li><a href="#mozTocId417351">International Standards List</a></li>
           <li><a href="#mozTocId118197">Violation Type</a></li>
-        </ul>
-      </li>
     </ul>
     </div>
     <p style="text-align: center;"><strong style="margin: 0px; padding: 0px; border-width: 0px; font-size: 16px; vertical-align: baseline; background-color: transparent;">RightsCase
