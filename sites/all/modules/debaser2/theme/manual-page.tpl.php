@@ -1,4 +1,4 @@
-<div class="toc" style="text-align: center; ">
+<div class="toc" style="text-align: left; margin-left: 30px; ">
     <ul id="mozToc" style="font-family: Helvetica,Arial,sans-serif;list-style: none;">
       <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
       <li><a href="#mozTocId740937">System Architecture</a>
