@@ -8,6 +8,7 @@ This is the code and database dump for the rightscase drupal project.
 + create a user for the database
 + copy the /sites/default/default.settings.php file to /sites/default/settings.php
 + edit this file with your database credentials
++ make sure the files directory and it's subdirectories are writable by your web server
 + Point your web server at the root directory
 + Default logins are user: demo password: demo or user: admin password: r1ghtscase2012
 + You will need an api key from google for mapping functions
