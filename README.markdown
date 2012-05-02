@@ -3,7 +3,7 @@
 This is the code and database dump for the rightscase drupal project.
 
 #### To install: 
-+ Clone the repo to your file system using github git clone https://github.com/cormac/rightscase
++ Clone the repo to your file system using github 'git clone https://github.com/cormac/rightscase'
 + Create a database(MySql only) and import db/rightscase.sql
 + create a user for the database
 + copy the /sites/default/default.settings.php file to /sites/default/settings.php
