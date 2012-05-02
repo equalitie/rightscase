@@ -10,6 +10,8 @@ This is the code and database dump for the rightscase drupal project.
 + edit this file with your database credentials
 + Point your web server at the root directory
 + Default logins are user: demo password: demo or user: admin password: r1ghtscase2012
++ You will need an api key from google for mapping functions
++ To create your API key, visit the APIs Console at https://code.google.com/apis/console and log in with your Google Account.
 + Go!
 
 
